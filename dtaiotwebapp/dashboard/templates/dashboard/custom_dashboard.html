@@ -1,0 +1,78 @@
+{% extends 'global/base.html' %}
+
+{% block content %}
+<h2>My Custom Dashboards</h2>
+
+<!-- Create Button -->
+<button id="createBtn">Create New Dashboard</button>
+
+<!-- CREATE MODAL -->
+<div id="createModal" style="display:none; border:1px solid #ccc; padding:20px;">
+    <h3>Create Dashboard</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Title" required><br><br>
+        <textarea name="description" placeholder="Description"></textarea><br><br>
+        <button type="submit" name="create_dashboard">Create</button>
+        <button type="button" onclick="closeCreate()">Cancel</button>
+    </form>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none; border:1px solid #ccc; padding:20px;">
+    <h3>Edit Dashboard</h3>
+    <form method="POST" id="editForm">
+        {% csrf_token %}
+        <input type="text" name="title" id="editTitle" required><br><br>
+        <textarea name="description" id="editDescription"></textarea><br><br>
+        <button type="submit">Update</button>
+        <button type="button" onclick="closeEdit()">Cancel</button>
+    </form>
+</div>
+
+<hr>
+
+{% for dash in dashboards %}
+<div style="border:1px solid #ccc; padding:10px; width:250px;">
+    <h3>{{ dash.title }}</h3>
+    <p>{{ dash.description|default:"No description" }}</p>
+
+    <a href="{% url 'view_dashboard' dash.slug %}">View</a> |
+
+    <button onclick="openEdit(
+        '{{ dash.id }}',
+        '{{ dash.title }}',
+        '{{ dash.description|escapejs }}'
+    )">Edit</button> |
+
+    <a href="{% url 'delete_dashboard' dash.id %}"
+       onclick="return confirm('Delete this dashboard?');">
+       Delete
+    </a>
+</div>
+{% empty %}
+<p>No dashboards created.</p>
+{% endfor %}
+
+<script>
+function openEdit(id, title, description) {
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDescription').value = description || '';
+    document.getElementById('editForm').action = `/custom/edit/${id}/`;
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function closeEdit() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+document.getElementById('createBtn').onclick = function () {
+    document.getElementById('createModal').style.display = 'block';
+};
+
+function closeCreate() {
+    document.getElementById('createModal').style.display = 'none';
+}
+</script>
+
+{% endblock %}

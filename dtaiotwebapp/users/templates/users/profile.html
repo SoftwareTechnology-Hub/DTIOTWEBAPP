@@ -1,0 +1,23 @@
+{% extends "global/base.html" %}
+{% block content %}
+<h1>Profile</h1>
+
+<p>Name: {{ request.user.name }}</p>
+<p>Email: {{ request.user.email }}</p>
+<p>Phone: {{ request.user.phone }}</p>
+
+<h3>Your API Key:</h3>
+<p>{{ request.user.api_key }}</p>
+
+<form action="{% url 'regenerate_api' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Regenerate API Key</button>
+</form>
+
+{% if messages %}
+  {% for message in messages %}
+    <p style="color: green;">{{ message }}</p>
+  {% endfor %}
+{% endif %}
+{% endblock %}
+  

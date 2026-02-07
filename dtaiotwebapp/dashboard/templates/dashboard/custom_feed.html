@@ -1,0 +1,77 @@
+{% extends 'global/base.html' %}
+{% block content %}
+
+<h2>My Custom Feeds</h2>
+
+<button id="createFeedBtn">Create New Feed</button>
+
+<!-- CREATE FEED MODAL -->
+<div id="createFeedModal" style="display:none; border:1px solid #ccc; padding:20px;">
+    <h3>Create Feed</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Feed Title" required><br><br>
+        <textarea name="content" placeholder="Feed Content"></textarea><br><br>
+        <button type="submit" name="create_feed">Create</button>
+        <button type="button" onclick="closeCreateFeed()">Cancel</button>
+    </form>
+</div>
+
+<!-- EDIT FEED MODAL -->
+<div id="editFeedModal" style="display:none; border:1px solid #ccc; padding:20px;">
+    <h3>Edit Feed</h3>
+    <form method="POST" id="editFeedForm">
+        {% csrf_token %}
+        <input type="text" name="title" id="editFeedTitle" required><br><br>
+        <textarea name="content" id="editFeedContent"></textarea><br><br>
+        <button type="submit">Update</button>
+        <button type="button" onclick="closeEditFeed()">Cancel</button>
+    </form>
+</div>
+
+<hr>
+
+{% for feed in feeds %}
+<div style="border:1px solid #ccc; padding:10px; width:300px;">
+    <h3>{{ feed.title }}</h3>
+    <p>{{ feed.content|default:"No content" }}</p>
+
+    <a href="{% url 'view_feed' feed.slug %}">View</a> |
+
+    <button onclick="openEditFeed(
+        '{{ feed.id }}',
+        '{{ feed.title }}',
+        '{{ feed.content|escapejs }}'
+    )">Edit</button> |
+
+    <a href="{% url 'delete_feed' feed.id %}"
+       onclick="return confirm('Delete this feed?');">
+       Delete
+    </a>
+</div>
+{% empty %}
+<p>No feeds created.</p>
+{% endfor %}
+
+<script>
+document.getElementById('createFeedBtn').onclick = function () {
+    document.getElementById('createFeedModal').style.display = 'block';
+};
+
+function closeCreateFeed() {
+    document.getElementById('createFeedModal').style.display = 'none';
+}
+
+function openEditFeed(id, title, content) {
+    document.getElementById('editFeedTitle').value = title;
+    document.getElementById('editFeedContent').value = content || '';
+    document.getElementById('editFeedForm').action = `/feed/edit/${id}/`;
+    document.getElementById('editFeedModal').style.display = 'block';
+}
+
+function closeEditFeed() {
+    document.getElementById('editFeedModal').style.display = 'none';
+}
+</script>
+
+{% endblock %}

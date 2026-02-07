@@ -1,3 +1,29 @@
-<h2>Welcome, {{ request.user.first_name }}</h2>
+{% extends "global/base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<h2>Welcome {{ request.user.first_name }}</h2>
 <p>Email: {{ request.user.email }}</p>
 <p>API Key: {{ request.user.api_key }}</p>
+
+
+<div class="cards">
+    <div class="card">
+        <a href="{% url 'custom_dashboard' %}">
+            <h3>Custom Dashboard</h3>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="{% url 'custom_feed' %}">
+            <h3>Custom Feed</h3>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="{% url 'profile' %}">
+            <h3>Profile</h3>
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -19,15 +19,15 @@ def signup(request):
             return redirect('signup')
 
         user = CustomUser(
-            username=email,      # 🔑 KEY POINT
+            username=email,          # IMPORTANT (internal)
             email=email,
-            first_name=name,
+            first_name=name,          # Name stored here
             phone=phone
         )
         user.set_password(password)
         user.save()
 
-        messages.success(request, 'Registration successful. Please login.')
+        messages.success(request, 'Signup successful. Please login.')
         return redirect('login')
 
     return render(request, 'users/signup.html')
@@ -42,10 +42,28 @@ def login_view(request):
 
         user = authenticate(request, username=email, password=password)
 
-        if user:
+        if user is not None:
             login(request, user)
             return redirect('dashboard')
         else:
             messages.error(request, 'Invalid email or password')
 
     return render(request, 'users/login.html')
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+import secrets
+@login_required
+def profile(request):
+    user = request.user  # get the logged-in user
+    return render(request, 'users/profile.html', {'user': user})
+
+@login_required
+@login_required
+def regenerate_api_key(request):
+    if request.method == "POST":
+        user = request.user
+        user.api_key = secrets.token_hex(32)  # generate new secure API key
+        user.save()
+        messages.success(request, "New API Key generated successfully!")
+    return redirect('/auth/profile')

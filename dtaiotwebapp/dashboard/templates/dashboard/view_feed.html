@@ -1,0 +1,6 @@
+{% extends 'global/base.html' %}
+{% block content %}
+<h2>{{ feed.title }}</h2>
+<p>{{ feed.content }}</p>
+<a href="{% url 'custom_feed' %}">Back</a>
+{% endblock %}
