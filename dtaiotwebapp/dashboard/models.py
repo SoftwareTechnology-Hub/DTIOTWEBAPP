@@ -55,3 +55,33 @@ class FeedData(models.Model):
 
     def __str__(self):
         return f"{self.feed.slug} = {self.value}"
+# dashboard/models.py
+class DashboardWidget(models.Model):
+    dashboard = models.ForeignKey(
+        Custom_Dashboard,
+        on_delete=models.CASCADE,
+        related_name="widgets"
+    )
+
+    name = models.CharField(max_length=100)
+    widget_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('line', 'Line Chart'),
+            ('bar', 'Bar Chart'),
+            ('gauge', 'Gauge'),
+            ('text', 'Text')
+        ]
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('dashboard', 'name')  # ✅ VERY IMPORTANT
+
+    def __str__(self):
+        return f"{self.dashboard.title} → {self.name}"
+class WidgetData(models.Model):
+    widget = models.ForeignKey(DashboardWidget, on_delete=models.CASCADE)
+    value = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)

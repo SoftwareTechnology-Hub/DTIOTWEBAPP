@@ -1,1 +1,177 @@
-Dashboard Index 5 
+{% extends "global/base.html" %}
+{% block content %}
+
+<h2>Dashboard: {{ dashboard.title }}</h2>
+<p>{{ dashboard.description }}</p>
+
+<hr>
+
+<!-- CREATE WIDGET BUTTON -->
+<button onclick="openCreateWidget()">➕ Create Widget</button>
+
+<!-- CREATE WIDGET MODAL -->
+<div id="createWidgetModal" style="display:none; border:1px solid #ccc; padding:15px; margin-top:15px;">
+    <h3>Create Widget</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="create_widget" value="1">
+
+        <label>Widget Name</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Widget Type</label><br>
+        <select name="widget_type">
+            <option value="line">Line Chart</option>
+            <option value="bar">Bar Chart</option>
+            <option value="gauge">Gauge</option>
+            <option value="text">Text</option>
+        </select><br><br>
+
+        <button type="submit">Create</button>
+        <button type="button" onclick="closeCreateWidget()">Cancel</button>
+    </form>
+</div>
+
+<hr>
+
+<h3>Widgets</h3>
+
+{% if widgets %}
+<div style="display:flex; flex-wrap:wrap; gap:15px;">
+{% for widget in widgets %}
+    <div style="border:1px solid #ddd; padding:15px; width:320px; border-radius:6px;">
+        <strong>{{ widget.name }}</strong>
+        <p>Type: {{ widget.widget_type }}</p>
+
+        {% if widget.widget_type == "text" %}
+            <h2 id="text-{{ widget.name }}">---</h2>
+
+        {% elif widget.widget_type == "gauge" %}
+            <div id="text-{{ widget.name }}"
+                 style="height:80px; background:#eee; text-align:center; line-height:80px; font-size:24px;">
+                 ---
+            </div>
+
+        {% else %}
+            <canvas id="chart-{{ widget.name }}" height="160"></canvas>
+        {% endif %}
+
+        <br>
+
+        <!-- ACTIONS -->
+        <button onclick="openEditWidget(
+            '{{ widget.id }}',
+            '{{ widget.name }}',
+            '{{ widget.widget_type }}'
+        )">✏️ Edit</button>
+
+        <a href="{% url 'delete_widget' widget.id %}"
+           onclick="return confirm('Delete this widget?');">
+           🗑 Delete
+        </a>
+    </div>
+{% endfor %}
+</div>
+{% else %}
+<p>No widgets yet.</p>
+{% endif %}
+
+<!-- EDIT WIDGET MODAL -->
+<div id="editWidgetModal" style="display:none; border:1px solid #ccc; padding:15px; margin-top:15px;">
+    <h3>Edit Widget</h3>
+    <form method="POST" id="editWidgetForm">
+        {% csrf_token %}
+
+        <label>Widget Name</label><br>
+        <input type="text" name="name" id="editWidgetName" required><br><br>
+
+        <label>Widget Type</label><br>
+        <select name="widget_type" id="editWidgetType">
+            <option value="line">Line Chart</option>
+            <option value="bar">Bar Chart</option>
+            <option value="gauge">Gauge</option>
+            <option value="text">Text</option>
+        </select><br><br>
+
+        <button type="submit">Update</button>
+        <button type="button" onclick="closeEditWidget()">Cancel</button>
+    </form>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ---------------- MODALS ---------------- */
+function openCreateWidget() {
+    document.getElementById("createWidgetModal").style.display = "block";
+}
+function closeCreateWidget() {
+    document.getElementById("createWidgetModal").style.display = "none";
+}
+function openEditWidget(id, name, type) {
+    document.getElementById("editWidgetModal").style.display = "block";
+    document.getElementById("editWidgetName").value = name;
+    document.getElementById("editWidgetType").value = type;
+    document.getElementById("editWidgetForm").action = `/widget/edit/${id}/`;
+}
+function closeEditWidget() {
+    document.getElementById("editWidgetModal").style.display = "none";
+}
+
+/* ---------------- CHART INIT ---------------- */
+const charts = {};
+
+{% for widget in widgets %}
+{% if widget.widget_type == "line" or widget.widget_type == "bar" %}
+charts["{{ widget.name }}"] = new Chart(
+    document.getElementById("chart-{{ widget.name }}"),
+    {
+        type: "{{ widget.widget_type }}",
+        data: {
+            labels: [],
+            datasets: [{
+                label: "{{ widget.name }}",
+                data: [],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false
+        }
+    }
+);
+{% endif %}
+{% endfor %}
+
+/* ---------------- AUTO UPDATE ---------------- */
+function loadDashboardData() {
+    fetch("/dashboard/data/{{ dashboard.slug }}/")
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(w => {
+
+                // TEXT & GAUGE
+                if (w.type === "text" || w.type === "gauge") {
+                    const el = document.getElementById("text-" + w.widget);
+                    if (el && w.values.length > 0) {
+                        el.innerText = w.values[w.values.length - 1];
+                    }
+                }
+
+                // CHART
+                if (charts[w.widget]) {
+                    charts[w.widget].data.labels = w.labels;
+                    charts[w.widget].data.datasets[0].data = w.values;
+                    charts[w.widget].update();
+                }
+            });
+        });
+}
+
+setInterval(loadDashboardData, 2000);
+loadDashboardData();
+</script>
+
+{% endblock %}

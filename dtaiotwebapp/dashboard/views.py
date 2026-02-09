@@ -20,9 +20,20 @@ def custom_dashboard(request):
     if request.method == 'POST' and 'create_dashboard' in request.POST:
         title = request.POST.get('title')
         description = request.POST.get('description')
+
         if title:
+            # Check if dashboard with same title already exists for this user
+            exists = Custom_Dashboard.objects.filter(user=request.user, title=title).exists()
+            if exists:
+                # You can return a message instead of creating
+                return render(request, 'dashboard/custom_dashboard.html', {
+                    'dashboards': dashboards,
+                    'error': f"A dashboard with the title '{title}' already exists."
+                })
+
+            # Create if not exists
             Custom_Dashboard.objects.create(user=request.user, title=title, description=description)
-        return redirect('custom_dashboard')
+            return redirect('custom_dashboard')
 
     return render(request, 'dashboard/custom_dashboard.html', {'dashboards': dashboards})
 
@@ -31,8 +42,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
-from .models import Custom_Dashboard
+from .models import Custom_Dashboard, DashboardWidget, WidgetData
 
+# dashboard/views.py
 @login_required
 def view_dashboard(request, slug):
     dashboard = get_object_or_404(
@@ -40,8 +52,26 @@ def view_dashboard(request, slug):
         slug=slug,
         user=request.user
     )
+
+    # CREATE WIDGET
+    if request.method == "POST":
+        name = request.POST.get("name")
+        widget_type = request.POST.get("widget_type")
+
+        if name and widget_type:
+            DashboardWidget.objects.create(
+                dashboard=dashboard,
+                name=name,
+                widget_type=widget_type
+            )
+
+        return redirect('view_dashboard', slug=dashboard.slug)
+
+    widgets = dashboard.widgets.all()
+
     return render(request, 'dashboard/view_dashboard.html', {
-        'dashboard': dashboard
+        'dashboard': dashboard,
+        'widgets': widgets
     })
 
 
@@ -217,3 +247,102 @@ def feed_data_json(request, slug):
         "values": [d.value for d in data],
         "labels": [d.created_at.strftime("%H:%M:%S") for d in data]
     })
+# dashboard/views.py
+from .models import DashboardWidget
+
+@login_required
+def edit_widget(request, widget_id):
+    widget = get_object_or_404(
+        DashboardWidget,
+        id=widget_id,
+        dashboard__user=request.user
+    )
+
+    if request.method == "POST":
+        widget.name = request.POST.get("name")
+        widget.widget_type = request.POST.get("widget_type")
+        widget.save()
+
+    return redirect('view_dashboard', slug=widget.dashboard.slug)
+
+
+@login_required
+def delete_widget(request, widget_id):
+    widget = get_object_or_404(
+        DashboardWidget,
+        id=widget_id,
+        dashboard__user=request.user
+    )
+
+    dashboard_slug = widget.dashboard.slug
+    widget.delete()
+
+    return redirect('view_dashboard', slug=dashboard_slug)
+@login_required
+def dashboard_data_json(request, slug):
+    dashboard = get_object_or_404(
+        Custom_Dashboard, slug=slug, user=request.user
+    )
+
+    result = []
+
+
+    for widget in dashboard.widgets.all():
+        records = WidgetData.objects.filter(widget=widget).order_by("created_at")[:20]
+
+
+        result.append({
+            "widget": widget.name,
+            "type": widget.widget_type,
+            "labels": [r.created_at.strftime("%H:%M:%S") for r in records],
+            "values": [r.value for r in records]
+        })
+    return JsonResponse(result, safe=False)
+    
+
+
+@csrf_exempt
+def dashboard_data(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    data = json.loads(request.body)
+
+    api_key = data.get("api_key")
+    dashboard_slug = data.get("dashboard")
+    widget_name = data.get("widget")
+    value = data.get("value")
+
+    if not all([api_key, dashboard_slug, widget_name]):
+        return JsonResponse({"error": "Missing fields"}, status=400)
+
+    # USER
+    user = get_object_or_404(CustomUser, api_key=api_key)
+
+    # DASHBOARD
+    dashboard = get_object_or_404(
+        Custom_Dashboard,
+        user=user,
+        slug=dashboard_slug
+    )
+
+    # WIDGET (BY NAME ❗)
+    widget = get_object_or_404(
+        DashboardWidget,
+        dashboard=dashboard,
+        name=widget_name
+    )
+
+    WidgetData.objects.create(widget=widget, value=value)
+
+    old_ids = (
+        WidgetData.objects
+        .filter(widget=widget)
+        .order_by('-created_at')
+        .values_list('id', flat=True)[5:]
+    )
+    WidgetData.objects.filter(id__in=list(old_ids)).delete()
+
+    return JsonResponse({"message": "Data saved"})
+
+    
