@@ -1,6 +1,37 @@
-{% extends 'global/base.html' %}
-{% block content %}
-<h2>{{ feed.title }}</h2>
-<p>{{ feed.content }}</p>
-<a href="{% url 'custom_feed' %}">Back</a>
-{% endblock %}
+<canvas id="chart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const feedSlug = "{{ feed.slug }}";
+
+const ctx = document.getElementById("chart").getContext("2d");
+
+const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: [],
+        datasets: [{
+            label: "Live Feed",
+            data: [],
+            borderWidth: 2
+        }]
+    }
+});
+
+function loadData() {
+    fetch(`/feed/json/${feedSlug}/`)
+        .then(res => res.json())
+        .then(data => {
+            chart.data.labels = data.labels;
+            chart.data.datasets[0].data = data.values;
+            chart.update();
+        });
+}
+
+// 🔁 AUTO UPDATE every 2 seconds
+setInterval(loadData, 2000);
+
+// initial load
+loadData();
+</script>

@@ -46,3 +46,12 @@ class Custom_Feed(models.Model):
 
     def __str__(self):
         return self.title
+
+# models.py
+class FeedData(models.Model):
+    feed = models.ForeignKey(Custom_Feed, on_delete=models.CASCADE)
+    value = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.feed.slug} = {self.value}"

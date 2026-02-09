@@ -12,4 +12,11 @@ urlpatterns = [
     path('feed/edit/<int:feed_id>/', views.edit_feed, name='edit_feed'),
     path('feed/delete/<int:feed_id>/', views.delete_feed, name='delete_feed'),    
     # path('profile/', views.profile, name='profile'),    # Profile page
+    path('api/data', views.Feed_data, name='Feed_data'),
+    path("feed/json/<slug:slug>/", views.feed_data_json, name="feed_data_json"),
+    # dashboard/urls.py
+    # path("feed/json/<slug:slug>/", views.feed_json, name="feed_json"),
+
+
+
 ]

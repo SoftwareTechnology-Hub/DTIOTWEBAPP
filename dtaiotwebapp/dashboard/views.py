@@ -106,16 +106,23 @@ def custom_feed(request):
     })
 
 
+from .models import FeedData
+
 @login_required
 def view_feed(request, slug):
-    feed = get_object_or_404(
-        Custom_Feed,
-        slug=slug,
-        user=request.user
-    )
+    feed = get_object_or_404(Custom_Feed, slug=slug, user=request.user)
+
+    records = FeedData.objects.filter(feed=feed).order_by('created_at')[:100]
+
+    labels = [r.created_at.strftime('%H:%M:%S') for r in records]
+    values = [r.value for r in records]
+
     return render(request, 'dashboard/view_feed.html', {
-        'feed': feed
+        'feed': feed,
+        'labels': labels,
+        'values': values,
     })
+
 
 
 @login_required
@@ -153,3 +160,60 @@ def delete_feed(request, feed_id):
     feed = get_object_or_404(Custom_Feed, id=feed_id, user=request.user)
     feed.delete()
     return redirect('custom_feed')
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from users.models import CustomUser
+from .models import Custom_Feed, FeedData
+@csrf_exempt
+def Feed_data(request):
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    api_key = data.get("api_key")
+    feed_name = data.get("feed_name")
+    value = data.get("value")
+
+    if not api_key or not feed_name:
+        return JsonResponse({"error": "Missing fields"}, status=400)
+
+    # user from api key
+    try:
+        user = CustomUser.objects.get(api_key=api_key)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({"error": "Invalid API key"}, status=403)
+
+    # feed from user
+    try:
+        feed = Custom_Feed.objects.get(user=user, slug=feed_name)
+    except Custom_Feed.DoesNotExist:
+        return JsonResponse({"error": "Feed not found"}, status=404)
+
+    # save data
+    FeedData.objects.create(feed=feed, value=value)
+
+    # keep only latest 5
+    old_ids = (
+        FeedData.objects
+        .filter(feed=feed)
+        .order_by('-created_at')
+        .values_list('id', flat=True)[10:]
+    )
+    FeedData.objects.filter(id__in=list(old_ids)).delete()
+
+    return JsonResponse({"message": "Data saved (latest 5 only)"})
+@login_required
+def feed_data_json(request, slug):
+    feed = get_object_or_404(Custom_Feed, slug=slug, user=request.user)
+
+    data = FeedData.objects.filter(feed=feed).order_by('created_at')
+
+    return JsonResponse({
+        "values": [d.value for d in data],
+        "labels": [d.created_at.strftime("%H:%M:%S") for d in data]
+    })
