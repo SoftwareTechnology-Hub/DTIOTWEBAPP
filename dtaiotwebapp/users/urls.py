@@ -7,4 +7,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('profile/', views.profile, name='profile'),
     path('regenerate-api/', views.regenerate_api_key, name='regenerate_api'),
+    path('logout/', views.user_logout, name='logout'),
+
 ]

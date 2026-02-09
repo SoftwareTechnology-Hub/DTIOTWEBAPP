@@ -54,29 +54,29 @@ def view_dashboard(request, slug):
     )
 
     # CREATE WIDGET
-   if request.method == "POST":
-    name = request.POST.get("name")
-    widget_type = request.POST.get("widget_type")
+    if request.method == "POST":
+        name = request.POST.get("name")
+        widget_type = request.POST.get("widget_type")
 
-    if name and widget_type:
-        # Check if widget with the same name exists in this dashboard
-        exists = DashboardWidget.objects.filter(dashboard=dashboard, name=name).exists()
-        if exists:
-            # Optionally, send an error message back to template
-            return render(request, 'dashboard/view_dashboard.html', {
-                'dashboard': dashboard,
-                'widgets': dashboard.widgets.all(),
-                'error': f"A widget with the name '{name}' already exists in this dashboard."
-            })
+        if name and widget_type:
+            # ✅ Check if widget with same name exists in this dashboard
+            exists = DashboardWidget.objects.filter(dashboard=dashboard, name=name).exists()
+            if exists:
+                # Optional: show error in template
+                widgets = dashboard.widgets.all()
+                return render(request, 'dashboard/view_dashboard.html', {
+                    'dashboard': dashboard,
+                    'widgets': widgets,
+                    'error': f"A widget with the name '{name}' already exists in this dashboard."
+                })
 
-        # Create if not exists
-        DashboardWidget.objects.create(
-            dashboard=dashboard,
-            name=name,
-            widget_type=widget_type
-        )
-
-        return redirect('view_dashboard', slug=dashboard.slug)
+            # Create new widget if not exists
+            DashboardWidget.objects.create(
+                dashboard=dashboard,
+                name=name,
+                widget_type=widget_type
+            )
+            return redirect('view_dashboard', slug=dashboard.slug)
 
     widgets = dashboard.widgets.all()
 
@@ -84,7 +84,6 @@ def view_dashboard(request, slug):
         'dashboard': dashboard,
         'widgets': widgets
     })
-
 
 from django.utils.text import slugify
 

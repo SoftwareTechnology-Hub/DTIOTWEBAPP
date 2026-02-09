@@ -67,3 +67,13 @@ def regenerate_api_key(request):
         user.save()
         messages.success(request, "New API Key generated successfully!")
     return redirect('/auth/profile')
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def user_logout(request):
+    """
+    Logs out the user and clears the session completely.
+    """
+    logout(request)  # Django clears the session and cookies automatically
+    return redirect('login')  # Redirect to your login page
