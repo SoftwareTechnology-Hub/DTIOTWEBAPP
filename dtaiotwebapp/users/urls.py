@@ -8,5 +8,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('regenerate-api/', views.regenerate_api_key, name='regenerate_api'),
     path('logout/', views.user_logout, name='logout'),
+    path('notifications/', views.notifications, name='notifications'),
 
 ]

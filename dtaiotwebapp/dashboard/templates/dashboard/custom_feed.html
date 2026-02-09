@@ -1,77 +1,646 @@
 {% extends 'global/base.html' %}
 {% block content %}
 
-<h2>My Custom Feeds</h2>
+<style>
+/* Page Container */
+.feeds-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
 
-<button id="createFeedBtn">Create New Feed</button>
+/* Header Section */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+/* Create Feed Button */
+.btn-create {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    white-space: nowrap;
+}
+
+.btn-create:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-create:active {
+    transform: translateY(0);
+}
+
+/* Modal Overlay - INSTANT NO DELAY */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+}
+
+.modal-overlay.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* Modal - INSTANT APPEARANCE */
+.modal {
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Form Styles - COMPACT */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.4rem;
+    font-size: 0.875rem;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.btn-primary,
+.btn-secondary {
+    flex: 1;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* Feed Cards Grid */
+.feeds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+}
+
+.feed-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 2px solid #f3f4f6;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feed-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+}
+
+.feed-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: #10b981;
+}
+
+.feed-card:hover::before {
+    transform: scaleX(1);
+}
+
+.feed-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.feed-title-icon {
+    width: 18px;
+    height: 18px;
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+.feed-content {
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Action Buttons - ALWAYS ONE LINE */
+.feed-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.feed-action-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    white-space: nowrap;
+}
+
+.btn-view {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.btn-view:hover {
+    background: #bae6fd;
+}
+
+.btn-edit {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.btn-edit:hover {
+    background: #fde68a;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+}
+
+.action-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    color: #d1d5db;
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.empty-description {
+    color: #9ca3af;
+    font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .feeds-container {
+        padding: 1rem 0.75rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .btn-create {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .feeds-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .modal {
+        max-width: 100%;
+    }
+    
+    .modal-body {
+        padding: 1.25rem;
+    }
+
+    .modal-header {
+        padding: 1rem 1.25rem;
+    }
+
+    .feed-card {
+        padding: 1rem;
+    }
+
+    /* KEEP BUTTONS IN ONE LINE ON MOBILE */
+    .feed-actions {
+        gap: 5px;
+    }
+
+    .feed-action-btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .action-icon {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 1.35rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+    }
+
+    .form-input,
+    .form-textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    /* EXTRA SMALL - STILL ONE LINE */
+    .feed-action-btn {
+        padding: 4px 6px;
+        font-size: 0.65rem;
+        gap: 2px;
+    }
+
+    .action-icon {
+        width: 11px;
+        height: 11px;
+    }
+}
+</style>
+
+<div class="feeds-container">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">My Custom Feeds</h1>
+        <button class="btn-create" id="createFeedBtn">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create New Feed
+        </button>
+    </div>
+
+    <!-- Feeds Grid -->
+    <div class="feeds-grid">
+        {% for feed in feeds %}
+        <div class="feed-card">
+            <h3 class="feed-title">
+                <svg class="feed-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                {{ feed.title }}
+            </h3>
+            <p class="feed-content">{{ feed.content|default:"No content available" }}</p>
+            
+            <div class="feed-actions">
+                <a href="{% url 'view_feed' feed.slug %}" class="feed-action-btn btn-view">
+                    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    View
+                </a>
+                
+                <button class="feed-action-btn btn-edit" onclick="openEditFeed(
+                    '{{ feed.id }}',
+                    '{{ feed.title }}',
+                    '{{ feed.content|escapejs }}'
+                )">
+                    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit
+                </button>
+                
+                <button class="feed-action-btn btn-delete" onclick="confirmDelete(event, '{{ feed.id }}', '{{ feed.title }}')">
+                    <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <h2 class="empty-title">No Feeds Created Yet</h2>
+            <p class="empty-description">Create your first feed to get started</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 
 <!-- CREATE FEED MODAL -->
-<div id="createFeedModal" style="display:none; border:1px solid #ccc; padding:20px;">
-    <h3>Create Feed</h3>
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="title" placeholder="Feed Title" required><br><br>
-        <textarea name="content" placeholder="Feed Content"></textarea><br><br>
-        <button type="submit" name="create_feed">Create</button>
-        <button type="button" onclick="closeCreateFeed()">Cancel</button>
-    </form>
+<div class="modal-overlay" id="createFeedModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Feed</h3>
+            <button class="modal-close" onclick="closeCreateFeed()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" id="createFeedFormEl">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="createFeedTitle">Feed Title</label>
+                    <input type="text" class="form-input" name="title" id="createFeedTitle" placeholder="Enter feed title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="createFeedContent">Feed Content</label>
+                    <textarea class="form-textarea" name="content" id="createFeedContent" placeholder="Enter feed content (optional)"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" name="create_feed">Create Feed</button>
+                    <button type="button" class="btn-secondary" onclick="closeCreateFeed()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- EDIT FEED MODAL -->
-<div id="editFeedModal" style="display:none; border:1px solid #ccc; padding:20px;">
-    <h3>Edit Feed</h3>
-    <form method="POST" id="editFeedForm">
-        {% csrf_token %}
-        <input type="text" name="title" id="editFeedTitle" required><br><br>
-        <textarea name="content" id="editFeedContent"></textarea><br><br>
-        <button type="submit">Update</button>
-        <button type="button" onclick="closeEditFeed()">Cancel</button>
-    </form>
+<div class="modal-overlay" id="editFeedModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Edit Feed</h3>
+            <button class="modal-close" onclick="closeEditFeed()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" id="editFeedForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="editFeedTitle">Feed Title</label>
+                    <input type="text" class="form-input" name="title" id="editFeedTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editFeedContent">Feed Content</label>
+                    <textarea class="form-textarea" name="content" id="editFeedContent"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Update Feed</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditFeed()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-
-<hr>
-
-{% for feed in feeds %}
-<div style="border:1px solid #ccc; padding:10px; width:300px;">
-    <h3>{{ feed.title }}</h3>
-    <p>{{ feed.content|default:"No content" }}</p>
-
-    <a href="{% url 'view_feed' feed.slug %}">View</a> |
-
-    <button onclick="openEditFeed(
-        '{{ feed.id }}',
-        '{{ feed.title }}',
-        '{{ feed.content|escapejs }}'
-    )">Edit</button> |
-
-    <a href="{% url 'delete_feed' feed.id %}"
-       onclick="return confirm('Delete this feed?');">
-       Delete
-    </a>
-</div>
-{% empty %}
-<p>No feeds created.</p>
-{% endfor %}
 
 <script>
+// Store existing feed titles for duplicate checking
+const existingFeedTitles = [
+    {% for feed in feeds %}
+        "{{ feed.title|lower }}",
+    {% endfor %}
+];
+
+// Modal functions - INSTANT DISPLAY
 document.getElementById('createFeedBtn').onclick = function () {
-    document.getElementById('createFeedModal').style.display = 'block';
+    document.getElementById('createFeedModal').classList.add('active');
 };
 
 function closeCreateFeed() {
-    document.getElementById('createFeedModal').style.display = 'none';
+    document.getElementById('createFeedModal').classList.remove('active');
 }
 
 function openEditFeed(id, title, content) {
     document.getElementById('editFeedTitle').value = title;
     document.getElementById('editFeedContent').value = content || '';
     document.getElementById('editFeedForm').action = `/feed/edit/${id}/`;
-    document.getElementById('editFeedModal').style.display = 'block';
+    document.getElementById('editFeedModal').classList.add('active');
 }
 
 function closeEditFeed() {
-    document.getElementById('editFeedModal').style.display = 'none';
+    document.getElementById('editFeedModal').classList.remove('active');
 }
+
+// Close modal when clicking outside
+document.getElementById('createFeedModal').onclick = function(e) {
+    if (e.target === this) closeCreateFeed();
+};
+
+document.getElementById('editFeedModal').onclick = function(e) {
+    if (e.target === this) closeEditFeed();
+};
+
+// Check for duplicate feed title on CREATE
+document.getElementById('createFeedFormEl').addEventListener('submit', function(e) {
+    const title = document.getElementById('createFeedTitle').value.trim();
+    
+    if (!title) {
+        e.preventDefault();
+        showToast('Please enter a feed title', 'error');
+        return false;
+    }
+    
+    // Check if title already exists (case-insensitive)
+    if (existingFeedTitles.includes(title.toLowerCase())) {
+        e.preventDefault();
+        showToast('Feed name already exists! Please choose a different name.', 'error', 'Duplicate Feed');
+        return false;
+    }
+});
+
+// Check for duplicate feed title on EDIT
+document.getElementById('editFeedForm').addEventListener('submit', function(e) {
+    const title = document.getElementById('editFeedTitle').value.trim();
+    
+    if (!title) {
+        e.preventDefault();
+        showToast('Please enter a feed title', 'error');
+        return false;
+    }
+});
+
+// Delete confirmation
+function confirmDelete(event, feedId, feedTitle) {
+    event.preventDefault();
+    if (confirm(`Are you sure you want to delete "${feedTitle}"?`)) {
+        window.location.href = `/feed/delete/${feedId}/`;
+    }
+}
+
+// Django messages integration (from backend)
+{% if messages %}
+  {% for message in messages %}
+    showToast(
+      '{{ message }}', 
+      '{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}'
+    );
+  {% endfor %}
+{% endif %}
 </script>
 
 {% endblock %}

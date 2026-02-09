@@ -1,29 +1,188 @@
 {% extends "global/base.html" %}
 {% block content %}
-<h1>Dashboard</h1>
 
-<h2>Welcome {{ request.user.first_name }}</h2>
-<p>Email: {{ request.user.email }}</p>
-<p>API Key: {{ request.user.api_key }}</p>
+<style>
+    .dashboard-container {
+        padding: 0;
+        max-width: 100%;
+    }
 
+    /* Section Title */
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-<div class="cards">
-    <div class="card">
-        <a href="{% url 'custom_dashboard' %}">
-            <h3>Custom Dashboard</h3>
-        </a>
-    </div>
+    .section-title::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 2px;
+    }
 
-    <div class="card">
-        <a href="{% url 'custom_feed' %}">
-            <h3>Custom Feed</h3>
-        </a>
-    </div>
+    /* Navigation Cards Grid */
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
 
-    <div class="card">
-        <a href="{% url 'profile' %}">
-            <h3>Profile</h3>
-        </a>
+    .card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 2rem 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #10b981, #059669);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+    }
+
+    .card a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .card-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: #10b981;
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .card h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .card-description {
+        font-size: 0.9rem;
+        color: #6b7280;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .card-arrow {
+        margin-top: 1rem;
+        color: #10b981;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card:hover .card-arrow {
+        gap: 0.8rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .cards {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .section-title {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Section Title -->
+    <h2 class="section-title">Quick Access</h2>
+
+    <!-- Navigation Cards -->
+    <div class="cards">
+        <div class="card">
+            <a href="{% url 'custom_dashboard' %}">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                </div>
+                <h3>Custom Dashboard</h3>
+                <p class="card-description">View and manage your personalized dashboard with custom widgets and analytics</p>
+                <div class="card-arrow">
+                    Explore →
+                </div>
+            </a>
+        </div>
+
+        <div class="card">
+            <a href="{% url 'custom_feed' %}">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 11a9 9 0 0 1 9 9"></path>
+                        <path d="M4 4a16 16 0 0 1 16 16"></path>
+                        <circle cx="5" cy="19" r="1"></circle>
+                    </svg>
+                </div>
+                <h3>Custom Feed</h3>
+                <p class="card-description">Access your personalized activity feed and real-time updates</p>
+                <div class="card-arrow">
+                    View Feed →
+                </div>
+            </a>
+        </div>
+
+        
     </div>
 </div>
+
 {% endblock %}

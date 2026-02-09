@@ -16,7 +16,7 @@ urlpatterns = [
     path("feed/json/<slug:slug>/", views.feed_data_json, name="feed_data_json"),
     # dashboard/urls.py
     # path("feed/json/<slug:slug>/", views.feed_json, name="feed_json"),
-# dashboard/urls.py
+    # dashboard/urls.py
     path('widget/edit/<int:widget_id>/', views.edit_widget, name='edit_widget'),
     path('widget/delete/<int:widget_id>/', views.delete_widget, name='delete_widget'),
     path('api/data', views.dashboard_data, name='dashboard_data'),

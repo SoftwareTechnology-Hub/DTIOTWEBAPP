@@ -77,3 +77,6 @@ def user_logout(request):
     """
     logout(request)  # Django clears the session and cookies automatically
     return redirect('login')  # Redirect to your login page
+def notifications(request):
+    # Placeholder for notifications view
+    return render(request, 'users/notifications.html')
