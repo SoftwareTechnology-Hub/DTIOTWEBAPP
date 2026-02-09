@@ -124,6 +124,15 @@ def custom_feed(request):
         content = request.POST.get('content')
 
         if title:
+            # Check if feed with the same title already exists for this user
+            exists = Custom_Feed.objects.filter(user=request.user, title=title).exists()
+            if exists:
+                return render(request, 'dashboard/custom_feed.html', {
+                    'feeds': feeds,
+                    'error': f"A feed with the title '{title}' already exists."
+                })
+
+            # Create if not exists
             Custom_Feed.objects.create(
                 user=request.user,
                 title=title,
