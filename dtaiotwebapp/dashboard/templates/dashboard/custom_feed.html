@@ -338,6 +338,74 @@
     font-size: 0.95rem;
 }
 
+/* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .feeds-container {
@@ -394,6 +462,16 @@
     .action-icon {
         width: 12px;
         height: 12px;
+    }
+
+    .toast {
+        min-width: auto;
+        max-width: calc(100vw - 40px);
+    }
+
+    .toast-container {
+        right: 10px;
+        left: 10px;
     }
 }
 
@@ -558,6 +636,9 @@
     </div>
 </div>
 
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
 // Store existing feed titles for duplicate checking
 const existingFeedTitles = [
@@ -565,6 +646,45 @@ const existingFeedTitles = [
         "{{ feed.title|lower }}",
     {% endfor %}
 ];
+
+// Toast notification function
+function showToast(message, type = 'success', title = null) {
+    const toastContainer = document.getElementById('toastContainer');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let iconSvg = '';
+    let defaultTitle = '';
+    
+    if (type === 'success') {
+        defaultTitle = 'Success';
+        iconSvg = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    } else if (type === 'error') {
+        defaultTitle = 'Error';
+        iconSvg = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+    } else if (type === 'warning') {
+        defaultTitle = 'Warning';
+        iconSvg = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+    }
+    
+    toast.innerHTML = `
+        ${iconSvg}
+        <div class="toast-content">
+            <div class="toast-title">${title || defaultTitle}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3500);
+}
 
 // Modal functions - INSTANT DISPLAY
 document.getElementById('createFeedBtn').onclick = function () {
@@ -605,6 +725,13 @@ document.getElementById('createFeedFormEl').addEventListener('submit', function(
         return false;
     }
     
+    // Check if title is less than 3 characters
+    if (title.length < 3) {
+        e.preventDefault();
+        showToast('Feed title must be at least 3 characters long', 'warning', 'Title Too Short');
+        return false;
+    }
+    
     // Check if title already exists (case-insensitive)
     if (existingFeedTitles.includes(title.toLowerCase())) {
         e.preventDefault();
@@ -622,14 +749,19 @@ document.getElementById('editFeedForm').addEventListener('submit', function(e) {
         showToast('Please enter a feed title', 'error');
         return false;
     }
+    
+    // Check if title is less than 3 characters
+    if (title.length < 3) {
+        e.preventDefault();
+        showToast('Feed title must be at least 3 characters long', 'warning', 'Title Too Short');
+        return false;
+    }
 });
 
-// Delete confirmation
+// Delete confirmation - NO ALERT POPUP
 function confirmDelete(event, feedId, feedTitle) {
     event.preventDefault();
-    if (confirm(`Are you sure you want to delete "${feedTitle}"?`)) {
-        window.location.href = `/feed/delete/${feedId}/`;
-    }
+    window.location.href = `/feed/delete/${feedId}/`;
 }
 
 // Django messages integration (from backend)

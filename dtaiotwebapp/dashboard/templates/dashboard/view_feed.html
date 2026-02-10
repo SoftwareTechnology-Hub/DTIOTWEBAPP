@@ -391,7 +391,7 @@ canvas {
  
 
     <!-- Header -->
-    <div class="dashboard-header">
+    <!-- <div class="dashboard-header">
         <div class="header-content">
             <div class="feed-info">
                 <h1>{{ feed.title }}</h1>
@@ -408,7 +408,7 @@ canvas {
                 Live Updates
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Statistics Cards - 4 IN ONE LINE -->
     <div class="stats-grid">
@@ -660,28 +660,14 @@ function updateStats(data) {
 }
 
 function loadData() {
-    const overlay = document.getElementById('loadingOverlay');
-    overlay.classList.add('active');
-    
     fetch(`/feed/json/${feedSlug}/`)
         .then(res => res.json())
         .then(data => {
             chart.data.labels = data.labels;
             chart.data.datasets[0].data = data.values;
-            chart.update('none');
-            
-            updateStats(data);
-            
-            setTimeout(() => {
-                overlay.classList.remove('active');
-            }, 200);
-        })
-        .catch(error => {
-            console.error('Error loading data:', error);
-            overlay.classList.remove('active');
+            chart.update();
         });
 }
-
 // Auto update every 2 seconds
 setInterval(loadData, 2000);
 

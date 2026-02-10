@@ -77,6 +77,10 @@ def user_logout(request):
     """
     logout(request)  # Django clears the session and cookies automatically
     return redirect('login')  # Redirect to your login page
+from django.contrib.auth.decorators import login_required
+from .models import Notification
 def notifications(request):
-    # Placeholder for notifications view
-    return render(request, 'users/notifications.html')
+    notifications = Notification.objects.filter(is_active=True).order_by("-created_at")
+    return render(request, "users/notifications.html", {
+        "notifications": notifications
+    })

@@ -1,101 +1,1005 @@
 {% extends "global/base.html" %}
 {% block content %}
 
-<h2>Dashboard: {{ dashboard.title }}</h2>
-<p>{{ dashboard.description }}</p>
+<style>
+/* Dashboard View Container */
+.dashboard-view-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
 
-<hr>
+/* Dashboard Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
 
-<!-- CREATE WIDGET BUTTON -->
-<button onclick="openCreateWidget()">➕ Create Widget</button>
+.dashboard-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
 
-<!-- CREATE WIDGET MODAL -->
-<div id="createWidgetModal" style="display:none; border:1px solid #ccc; padding:15px; margin-top:15px;">
-    <h3>Create Widget</h3>
-    <form method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="create_widget" value="1">
+.dashboard-info h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
 
-        <label>Widget Name</label><br>
-        <input type="text" name="name" required><br><br>
+.dashboard-info p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0;
+    line-height: 1.5;
+}
 
-        <label>Widget Type</label><br>
-        <select name="widget_type">
-            <option value="line">Line Chart</option>
-            <option value="bar">Bar Chart</option>
-            <option value="gauge">Gauge</option>
-            <option value="text">Text</option>
-        </select><br><br>
+.btn-add-widget {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 
-        <button type="submit">Create</button>
-        <button type="button" onclick="closeCreateWidget()">Cancel</button>
-    </form>
-</div>
+.btn-add-widget:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+}
 
-<hr>
+/* Widgets Grid */
+.widgets-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-<h3>Widgets</h3>
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    justify-items: center;
+}
 
-{% if widgets %}
-<div style="display:flex; flex-wrap:wrap; gap:15px;">
-{% for widget in widgets %}
-    <div style="border:1px solid #ddd; padding:15px; width:320px; border-radius:6px;">
-        <strong>{{ widget.name }}</strong>
-        <p>Type: {{ widget.widget_type }}</p>
+.widget-card {
+    width: 100%;
+    max-width: 500px;
+}
 
-        {% if widget.widget_type == "text" %}
-            <h2 id="text-{{ widget.name }}">---</h2>
+/* Widget Card */
+.widget-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 2px solid #f3f4f6;
+    transition: all 0.3s ease;
+    position: relative;
+}
 
-        {% elif widget.widget_type == "gauge" %}
-            <div id="text-{{ widget.name }}"
-                 style="height:80px; background:#eee; text-align:center; line-height:80px; font-size:24px;">
-                 ---
+.widget-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: #10b981;
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f3f4f6;
+    gap: 1rem;
+}
+
+.widget-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    word-break: break-word;
+}
+
+.widget-type-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.widget-type-badge.line {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.widget-type-badge.bar {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.widget-type-badge.gauge {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.widget-type-badge.text {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+/* Widget Content Area */
+.widget-content {
+    margin-bottom: 1.25rem;
+}
+
+.widget-chart-container {
+    position: relative;
+    height: 220px;
+    width: 100%;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+}
+
+.widget-chart {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 200px;
+}
+
+.value-display {
+    font-size: 2.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.widget-text-display {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+    border-radius: 12px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #10b981;
+    border: 2px solid #e5e7eb;
+    padding: 1.5rem;
+    word-break: break-word;
+}
+
+.widget-gauge-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    border: 2px solid #a7f3d0;
+}
+
+.gauge-wrapper {
+    width: 100%;
+    max-width: 220px;
+}
+
+.gauge-canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.metric-box {
+    background: #f9fafb;
+    padding: 0.875rem;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.metric-box label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+.metric-box .value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.widget-loading {
+    color: #9ca3af;
+    font-size: 1.5rem;
+}
+
+/* Widget Actions */
+.widget-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.widget-action-btn {
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+}
+
+.btn-edit-widget {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.btn-edit-widget:hover {
+    background: #fde68a;
+    transform: translateY(-1px);
+}
+
+.btn-delete-widget {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete-widget:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* Modal */
+.modal {
+    background: white;
+    border-radius: 20px;
+    padding: 0;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 2rem;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed #d1d5db;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    color: #d1d5db;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+.empty-description {
+    color: #9ca3af;
+    font-size: 1rem;
+}
+
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+    .dashboard-view-container {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .widgets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .widget-card {
+        max-width: 450px;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .dashboard-view-container {
+        padding: 1.25rem 1rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .dashboard-header-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .dashboard-info h1 {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-info p {
+        font-size: 0.9rem;
+    }
+
+    .btn-add-widget {
+        width: 100%;
+        justify-content: center;
+        padding: 0.875rem 1.25rem;
+    }
+
+    .widgets-section-title {
+        font-size: 1.35rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .widgets-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        justify-items: center;
+    }
+    
+    .widget-card {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .widget-card {
+        padding: 1.25rem;
+    }
+
+    .widget-header {
+        flex-wrap: wrap;
+    }
+
+    .value-display {
+        font-size: 2.25rem;
+    }
+
+    .widget-text-display {
+        min-height: 180px;
+        font-size: 2rem;
+    }
+
+    .widget-chart-container {
+        height: 200px;
+    }
+
+    .modal {
+        max-width: calc(100% - 2rem);
+        margin: 1rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+    .dashboard-view-container {
+        padding: 1rem 0.75rem;
+    }
+
+    .dashboard-header {
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .dashboard-info h1 {
+        font-size: 1.25rem;
+    }
+    
+    .dashboard-info p {
+        font-size: 0.85rem;
+    }
+
+    .btn-add-widget {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .widgets-section-title {
+        font-size: 1.2rem;
+    }
+
+    .widget-card {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .widget-title {
+        font-size: 1rem;
+    }
+
+    .widget-type-badge {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+    }
+
+    .value-display {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .widget-text-display {
+        min-height: 160px;
+        font-size: 1.75rem;
+        padding: 1rem;
+    }
+
+    .widget-gauge-display {
+        padding: 1.5rem 1rem;
+    }
+
+    .widget-chart-container {
+        height: 180px;
+        padding: 0.75rem;
+    }
+
+    .metrics-row {
+        gap: 0.5rem;
+    }
+
+    .metric-box {
+        padding: 0.625rem;
+    }
+
+    .metric-box label {
+        font-size: 0.65rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-box .value {
+        font-size: 0.95rem;
+    }
+
+    .widget-action-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        gap: 4px;
+    }
+
+    .widget-action-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.2rem;
+    }
+
+    .modal-body {
+        padding: 1.25rem;
+    }
+
+    .form-input,
+    .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 10px 14px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        padding: 3rem 1.5rem;
+    }
+
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .empty-title {
+        font-size: 1.25rem;
+    }
+
+    .empty-description {
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+    .dashboard-view-container {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .dashboard-header {
+        padding: 1rem;
+    }
+
+    .dashboard-info h1 {
+        font-size: 1.1rem;
+    }
+    
+    .dashboard-info p {
+        font-size: 0.8rem;
+    }
+
+    .btn-add-widget {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.85rem;
+    }
+
+    .widgets-section-title {
+        font-size: 1.1rem;
+    }
+
+    .widget-card {
+        padding: 0.875rem;
+    }
+
+    .widget-title {
+        font-size: 0.95rem;
+    }
+
+    .value-display {
+        font-size: 1.75rem;
+    }
+
+    .widget-text-display {
+        min-height: 140px;
+        font-size: 1.5rem;
+    }
+
+    .widget-chart-container {
+        height: 160px;
+        padding: 0.625rem;
+    }
+
+    .metric-box {
+        padding: 0.5rem 0.375rem;
+    }
+
+    .metric-box .value {
+        font-size: 0.85rem;
+    }
+
+    .gauge-wrapper {
+        max-width: 160px;
+    }
+}
+
+/* Landscape on small devices */
+@media (max-height: 600px) and (orientation: landscape) {
+    .dashboard-header-top {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .btn-add-widget {
+        width: auto;
+    }
+    
+    .widget-chart-container {
+        height: 160px;
+    }
+
+    .widget-text-display {
+        min-height: 140px;
+    }
+}
+</style>
+
+<div class="dashboard-view-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="dashboard-header-top">
+            <div class="dashboard-info">
+                <h1>{{ dashboard.title }}</h1>
+                <p>{{ dashboard.description|default:"Real-time dashboard monitoring" }}</p>
+            </div>
+            <button class="btn-add-widget" onclick="openCreateWidget()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Widget
+            </button>
+        </div>
+    </div>
+
+    <!-- Widgets Section -->
+    <h2 class="widgets-section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Widgets
+    </h2>
+
+    {% if widgets %}
+    <div class="widgets-grid">
+        {% for widget in widgets %}
+        <div class="widget-card">
+            <div class="widget-header">
+                <h3 class="widget-title">{{ widget.name }}</h3>
+                <span class="widget-type-badge {{ widget.widget_type }}">{{ widget.widget_type }}</span>
             </div>
 
-        {% else %}
-            <canvas id="chart-{{ widget.name }}" height="160"></canvas>
-        {% endif %}
+            <div class="widget-content">
+                {% if widget.widget_type == "text" %}
+                    <div class="widget-text-display" id="text-{{ widget.name }}">
+                        <span class="widget-loading">---</span>
+                    </div>
 
-        <br>
+                {% elif widget.widget_type == "gauge" %}
+                    <div class="widget-gauge-display">
+                        <div class="value-display" id="gauge-value-{{ widget.name }}">
+                            <span class="widget-loading">--</span>
+                        </div>
+                        <div class="gauge-wrapper">
+                            <canvas id="gauge-{{ widget.name }}" class="gauge-canvas"></canvas>
+                        </div>
+                        <div class="metrics-row">
+                            <div class="metric-box">
+                                <label>Min</label>
+                                <div class="value min-value" id="min-{{ widget.name }}">--</div>
+                            </div>
+                            <div class="metric-box">
+                                <label>Max</label>
+                                <div class="value max-value" id="max-{{ widget.name }}">--</div>
+                            </div>
+                            <div class="metric-box">
+                                <label>Avg</label>
+                                <div class="value avg-value" id="avg-{{ widget.name }}">--</div>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- ACTIONS -->
-        <button onclick="openEditWidget(
-            '{{ widget.id }}',
-            '{{ widget.name }}',
-            '{{ widget.widget_type }}'
-        )">✏️ Edit</button>
+                {% else %}
+                    <div class="value-display" id="value-{{ widget.name }}">
+                        <span class="widget-loading">--</span>
+                    </div>
+                    <div class="widget-chart-container">
+                        <canvas id="chart-{{ widget.name }}" class="widget-chart"></canvas>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <label>Min</label>
+                            <div class="value min-value" id="min-{{ widget.name }}">--</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>Max</label>
+                            <div class="value max-value" id="max-{{ widget.name }}">--</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>Avg</label>
+                            <div class="value avg-value" id="avg-{{ widget.name }}">--</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
 
-        <a href="{% url 'delete_widget' widget.id %}"
-           onclick="return confirm('Delete this widget?');">
-           🗑 Delete
-        </a>
+            <div class="widget-actions">
+                <button class="widget-action-btn btn-edit-widget" onclick="openEditWidget(
+                    '{{ widget.id }}',
+                    '{{ widget.name|escapejs }}',
+                    '{{ widget.widget_type }}'
+                )">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit
+                </button>
+
+                <button class="widget-action-btn btn-delete-widget" onclick="confirmDeleteWidget(event, '{{ widget.id }}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete
+                </button>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-{% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <h2 class="empty-title">No Widgets Yet</h2>
+        <p class="empty-description">Click "Add Widget" to create your first widget</p>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<p>No widgets yet.</p>
-{% endif %}
+
+<!-- CREATE WIDGET MODAL -->
+<div class="modal-overlay" id="createWidgetModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Create New Widget</h3>
+            <button class="modal-close" onclick="closeCreateWidget()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" id="createWidgetForm">
+                {% csrf_token %}
+                <input type="hidden" name="create_widget" value="1">
+
+                <div class="form-group">
+                    <label class="form-label" for="createWidgetName">Widget Name</label>
+                    <input type="text" class="form-input" name="name" id="createWidgetName" placeholder="Enter widget name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="createWidgetType">Widget Type</label>
+                    <select class="form-select" name="widget_type" id="createWidgetType">
+                        <option value="line">Line Chart</option>
+                        <option value="bar">Bar Chart</option>
+                        <option value="gauge">Gauge</option>
+                        <option value="text">Text Display</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Create Widget</button>
+                    <button type="button" class="btn-secondary" onclick="closeCreateWidget()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- EDIT WIDGET MODAL -->
-<div id="editWidgetModal" style="display:none; border:1px solid #ccc; padding:15px; margin-top:15px;">
-    <h3>Edit Widget</h3>
-    <form method="POST" id="editWidgetForm">
-        {% csrf_token %}
+<div class="modal-overlay" id="editWidgetModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Edit Widget</h3>
+            <button class="modal-close" onclick="closeEditWidget()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" id="editWidgetForm">
+                {% csrf_token %}
 
-        <label>Widget Name</label><br>
-        <input type="text" name="name" id="editWidgetName" required><br><br>
+                <div class="form-group">
+                    <label class="form-label" for="editWidgetName">Widget Name</label>
+                    <input type="text" class="form-input" name="name" id="editWidgetName" required>
+                </div>
 
-        <label>Widget Type</label><br>
-        <select name="widget_type" id="editWidgetType">
-            <option value="line">Line Chart</option>
-            <option value="bar">Bar Chart</option>
-            <option value="gauge">Gauge</option>
-            <option value="text">Text</option>
-        </select><br><br>
+                <div class="form-group">
+                    <label class="form-label" for="editWidgetType">Widget Type</label>
+                    <select class="form-select" name="widget_type" id="editWidgetType">
+                        <option value="line">Line Chart</option>
+                        <option value="bar">Bar Chart</option>
+                        <option value="gauge">Gauge</option>
+                        <option value="text">Text Display</option>
+                    </select>
+                </div>
 
-        <button type="submit">Update</button>
-        <button type="button" onclick="closeEditWidget()">Cancel</button>
-    </form>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Update Widget</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditWidget()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Chart.js -->
@@ -104,69 +1008,277 @@
 <script>
 /* ---------------- MODALS ---------------- */
 function openCreateWidget() {
-    document.getElementById("createWidgetModal").style.display = "block";
+    document.getElementById("createWidgetModal").classList.add('active');
 }
+
 function closeCreateWidget() {
-    document.getElementById("createWidgetModal").style.display = "none";
+    document.getElementById("createWidgetModal").classList.remove('active');
 }
+
 function openEditWidget(id, name, type) {
-    document.getElementById("editWidgetModal").style.display = "block";
     document.getElementById("editWidgetName").value = name;
     document.getElementById("editWidgetType").value = type;
     document.getElementById("editWidgetForm").action = `/widget/edit/${id}/`;
+    document.getElementById("editWidgetModal").classList.add('active');
 }
+
 function closeEditWidget() {
-    document.getElementById("editWidgetModal").style.display = "none";
+    document.getElementById("editWidgetModal").classList.remove('active');
+}
+
+// Close modal when clicking outside
+document.getElementById("createWidgetModal").onclick = function(e) {
+    if (e.target === this) closeCreateWidget();
+};
+
+document.getElementById("editWidgetModal").onclick = function(e) {
+    if (e.target === this) closeEditWidget();
+};
+
+// Delete widget
+function confirmDeleteWidget(event, widgetId) {
+    event.preventDefault();
+    window.location.href = `/widget/delete/${widgetId}/`;
 }
 
 /* ---------------- CHART INIT ---------------- */
 const charts = {};
+const widgetData = {};
 
-{% for widget in widgets %}
-{% if widget.widget_type == "line" or widget.widget_type == "bar" %}
-charts["{{ widget.name }}"] = new Chart(
-    document.getElementById("chart-{{ widget.name }}"),
-    {
-        type: "{{ widget.widget_type }}",
+// Color helper
+function getColor(val) {
+    return val >= 60 ? '#10b981' : val >= 20 ? '#f59e0b' : '#ef4444';
+}
+
+// Create Gauge Chart
+function createGauge(ctx, val) {
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [val, 100 - val],
+                backgroundColor: [getColor(val), '#f3f4f6'],
+                borderWidth: 0,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            rotation: -90,
+            circumference: 180,
+            cutout: '75%',
+            plugins: {
+                tooltip: { enabled: false },
+                legend: { display: false }
+            },
+            maintainAspectRatio: true,
+            responsive: true
+        }
+    });
+}
+
+// Create Line Chart
+function createLineChart(ctx) {
+    return new Chart(ctx, {
+        type: 'line',
         data: {
             labels: [],
             datasets: [{
-                label: "{{ widget.name }}",
+                label: 'Value',
                 data: [],
-                borderWidth: 2
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            animation: false
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: '#e5e7eb' },
+                    ticks: { color: '#9ca3af' }
+                },
+                x: {
+                    grid: { color: '#e5e7eb' },
+                    ticks: { color: '#9ca3af', maxRotation: 0 }
+                }
+            }
         }
+    });
+}
+
+// Create Bar Chart
+function createBarChart(ctx) {
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Value',
+                data: [],
+                backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                borderColor: '#10b981',
+                borderWidth: 2,
+                borderRadius: 6,
+                barThickness: 'flex',
+                maxBarThickness: 40
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: '#e5e7eb' },
+                    ticks: { color: '#9ca3af' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#9ca3af', maxRotation: 0 }
+                }
+            }
+        }
+    });
+}
+
+{% for widget in widgets %}
+widgetData["{{ widget.name }}"] = { values: [] };
+
+{% if widget.widget_type == "gauge" %}
+try {
+    const canvas = document.getElementById("gauge-{{ widget.name }}");
+    if (canvas) {
+        charts["{{ widget.name }}"] = createGauge(canvas.getContext('2d'), 0);
     }
-);
+} catch (error) {
+    console.error('Error initializing gauge {{ widget.name }}:', error);
+}
+{% elif widget.widget_type == "line" %}
+try {
+    const canvas = document.getElementById("chart-{{ widget.name }}");
+    if (canvas) {
+        charts["{{ widget.name }}"] = createLineChart(canvas.getContext('2d'));
+    }
+} catch (error) {
+    console.error('Error initializing line chart {{ widget.name }}:', error);
+}
+{% elif widget.widget_type == "bar" %}
+try {
+    const canvas = document.getElementById("chart-{{ widget.name }}");
+    if (canvas) {
+        charts["{{ widget.name }}"] = createBarChart(canvas.getContext('2d'));
+    }
+} catch (error) {
+    console.error('Error initializing bar chart {{ widget.name }}:', error);
+}
 {% endif %}
 {% endfor %}
 
 /* ---------------- AUTO UPDATE ---------------- */
 function loadDashboardData() {
     fetch("/dashboard/data/{{ dashboard.slug }}/")
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('Network error');
+            return res.json();
+        })
         .then(data => {
+            if (!data || !Array.isArray(data)) return;
+            
             data.forEach(w => {
+                // Store values for metrics calculation
+                if (w.values && w.values.length > 0) {
+                    if (!widgetData[w.widget]) {
+                        widgetData[w.widget] = { values: [] };
+                    }
+                    widgetData[w.widget].values = w.values;
+                }
 
-                // TEXT & GAUGE
-                if (w.type === "text" || w.type === "gauge") {
+                const widgetValues = widgetData[w.widget]?.values || [];
+                const currentValue = widgetValues.length > 0 ? widgetValues[widgetValues.length - 1] : 0;
+
+                // Calculate metrics
+                const min = widgetValues.length > 0 ? Math.min(...widgetValues) : 0;
+                const max = widgetValues.length > 0 ? Math.max(...widgetValues) : 0;
+                const avg = widgetValues.length > 0 ? (widgetValues.reduce((a, b) => a + b, 0) / widgetValues.length).toFixed(1) : 0;
+
+                // Update metrics displays
+                const minEl = document.getElementById("min-" + w.widget);
+                const maxEl = document.getElementById("max-" + w.widget);
+                const avgEl = document.getElementById("avg-" + w.widget);
+                
+                if (minEl) minEl.textContent = min;
+                if (maxEl) maxEl.textContent = max;
+                if (avgEl) avgEl.textContent = avg;
+
+                // TEXT DISPLAY
+                if (w.type === "text") {
                     const el = document.getElementById("text-" + w.widget);
-                    if (el && w.values.length > 0) {
-                        el.innerText = w.values[w.values.length - 1];
+                    if (el) {
+                        if (widgetValues.length > 0) {
+                            el.innerHTML = currentValue;
+                        } else {
+                            el.innerHTML = '<span class="widget-loading">---</span>';
+                        }
                     }
                 }
 
-                // CHART
-                if (charts[w.widget]) {
-                    charts[w.widget].data.labels = w.labels;
-                    charts[w.widget].data.datasets[0].data = w.values;
-                    charts[w.widget].update();
+                // GAUGE DISPLAY
+                else if (w.type === "gauge") {
+                    const valueEl = document.getElementById("gauge-value-" + w.widget);
+                    if (valueEl) {
+                        if (widgetValues.length > 0) {
+                            valueEl.textContent = currentValue + '%';
+                        } else {
+                            valueEl.innerHTML = '<span class="widget-loading">--</span>';
+                        }
+                    }
+                    
+                    // Update gauge chart
+                    if (charts[w.widget]) {
+                        charts[w.widget].data.datasets[0].data = [currentValue, 100 - currentValue];
+                        charts[w.widget].data.datasets[0].backgroundColor[0] = getColor(currentValue);
+                        charts[w.widget].update('none');
+                    }
+                }
+
+                // LINE & BAR CHARTS
+                else if (charts[w.widget]) {
+                    const valueEl = document.getElementById("value-" + w.widget);
+                    if (valueEl) {
+                        if (widgetValues.length > 0) {
+                            valueEl.textContent = currentValue + '%';
+                        } else {
+                            valueEl.innerHTML = '<span class="widget-loading">--</span>';
+                        }
+                    }
+                    
+                    if (w.labels && w.values) {
+                        charts[w.widget].data.labels = w.labels;
+                        charts[w.widget].data.datasets[0].data = w.values;
+                        charts[w.widget].update('none');
+                    }
                 }
             });
+        })
+        .catch(err => {
+            console.error('Dashboard data error:', err);
         });
 }
 
