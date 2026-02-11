@@ -9,6 +9,10 @@ class AppOnlyAccessMiddleware:
         if request.path.startswith('/api/'):
             return self.get_response(request)
 
+        if request.path.startswith('/admin/'):
+            return self.get_response(request)
+
+
         # Always allow POST requests (login/signup forms)
         if request.method == "POST":
             return self.get_response(request)
