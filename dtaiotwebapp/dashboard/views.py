@@ -325,14 +325,17 @@ def dashboard_data(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
 
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
 
     api_key = data.get("api_key")
-    dashboard_slug = data.get("dashboard")
+    dashboard_name = data.get("dashboard")   # TITLE sent by device
     widget_name = data.get("widget")
     value = data.get("value")
 
-    if not all([api_key, dashboard_slug, widget_name]):
+    if not all([api_key, dashboard_name, widget_name]):
         return JsonResponse({"error": "Missing fields"}, status=400)
 
     # USER
@@ -342,14 +345,16 @@ def dashboard_data(request):
     dashboard = get_object_or_404(
         Custom_Dashboard,
         user=user,
-        slug=dashboard_slug
+        # slug=dashboard_slug
+        title__iexact=dashboard_name  # matches "Hi Test" or "hi test"
+
     )
 
     # WIDGET (BY NAME ❗)
     widget = get_object_or_404(
         DashboardWidget,
         dashboard=dashboard,
-        name=widget_name
+        name__iexact=widget_name
     )
 
     WidgetData.objects.create(widget=widget, value=value)
