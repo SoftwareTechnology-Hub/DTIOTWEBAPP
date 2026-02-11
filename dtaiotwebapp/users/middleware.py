@@ -9,13 +9,17 @@ class AppOnlyAccessMiddleware:
         if request.path.startswith('/api/'):
             return self.get_response(request)
 
-        # Check User-Agent
-        ua = request.META.get('HTTP_USER_AGENT', '').lower()
-        if 'wv' not in ua and 'android' not in ua:
-            return HttpResponseForbidden("Only accessible via mobile app")
+        # Allow POST requests (login/signup)
+        if request.method == "POST":
+            return self.get_response(request)
 
-        # Check secret header
-        if request.headers.get("X-APP") != "AIOT_APP":
-            return HttpResponseForbidden("Unauthorized app access")
+        # Allow requests with correct app header
+        if request.headers.get("X-APP") == "AIOT_APP":
+            return self.get_response(request)
 
-        return self.get_response(request)
+        # Otherwise block browsers
+        ua = request.META.get("HTTP_USER_AGENT", "").lower()
+        if "wv" in ua or "android" in ua:
+            return self.get_response(request)  # Allow Android WebView GETs
+
+        return HttpResponseForbidden("App access only")
