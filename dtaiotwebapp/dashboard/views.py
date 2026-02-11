@@ -228,20 +228,31 @@ def Feed_data(request):
     feed_name = data.get("feed_name")
     value = data.get("value")
 
-    if not api_key or not feed_name:
+    if not all([api_key, feed_name]):
         return JsonResponse({"error": "Missing fields"}, status=400)
 
-    # user from api key
-    try:
-        user = CustomUser.objects.get(api_key=api_key)
-    except CustomUser.DoesNotExist:
-        return JsonResponse({"error": "Invalid API key"}, status=403)
 
-    # feed from user
-    try:
-        feed = Custom_Feed.objects.get(user=user, slug=feed_name)
-    except Custom_Feed.DoesNotExist:
-        return JsonResponse({"error": "Feed not found"}, status=404)
+    # # user from api key
+    # try:
+    #     user = CustomUser.objects.get(api_key=api_key)
+    # except CustomUser.DoesNotExist:
+    #     return JsonResponse({"error": "Invalid API key"}, status=403)
+
+    # # feed from user
+    # try:
+    #     feed = Custom_Feed.objects.get(user=user, slug=feed_name)
+    # except Custom_Feed.DoesNotExist:
+    #     return JsonResponse({"error": "Feed not found"}, status=404)
+
+    user = get_object_or_404(CustomUser, api_key=api_key)
+
+    # ✅ FEED MATCH BY TITLE (industry standard)
+    feed = get_object_or_404(
+        Custom_Feed,
+        user=user,
+        title__iexact=feed_name
+    )
+
 
     # save data
     FeedData.objects.create(feed=feed, value=value)
