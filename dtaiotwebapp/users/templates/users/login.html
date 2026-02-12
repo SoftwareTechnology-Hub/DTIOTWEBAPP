@@ -179,6 +179,34 @@
             transform: translateY(0);
         }
 
+        .submit-btn.loading {
+            background: linear-gradient(135deg, #059669, #059669);
+            cursor: wait;
+            position: relative;
+            color: transparent;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .divider {
             display: flex;
             align-items: center;
@@ -269,7 +297,7 @@
             <p>Please login to your account</p>
         </div>
 
-        <form method="post">
+        <form method="post" onsubmit="showLoading(event)">
             {% csrf_token %}
 
             <div class="form-group">
@@ -304,7 +332,7 @@
                 <a href="#">Forgot Password?</a>
             </div>
 
-            <button type="submit" class="submit-btn">Login</button>
+            <button type="submit" class="submit-btn" id="loginBtn">Login</button>
 
             <div class="divider">or</div>
 
@@ -334,6 +362,13 @@
                     <circle cx="12" cy="12" r="3"></circle>
                 `;
             }
+        }
+
+        function showLoading(event) {
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            return true;
         }
     </script>
 </body>
