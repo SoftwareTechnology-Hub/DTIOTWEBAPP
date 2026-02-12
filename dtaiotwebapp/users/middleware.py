@@ -1,4 +1,5 @@
-from django.http import HttpResponseForbiddenffrom django.shortcuts import render
+from django.http import HttpResponseForbidden
+from django.shortcuts import render
 
 class AppOnlyAccessMiddleware:
     def __init__(self, get_response):
@@ -29,4 +30,4 @@ class AppOnlyAccessMiddleware:
         # return HttpResponseForbidden("App access only")
 
         # Otherwise block - show 403 error page
-        return render(request, '403.html', status=403)
+        return render(request, '403.html', status=403)orbidden("App access only")
