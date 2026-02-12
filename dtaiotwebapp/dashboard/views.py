@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django_ratelimit.decorators import ratelimit
+
 
 @login_required
 def dashboard(request):
@@ -214,7 +216,10 @@ from django.http import JsonResponse
 import json
 from users.models import CustomUser
 from .models import Custom_Feed, FeedData
+
 @csrf_exempt
+@ratelimit(key='user_or_api_key', rate='10/10s', method='POST', block=True)
+
 def Feed_data(request):
     if request.method != 'POST':
         return JsonResponse({"error": "POST required"}, status=405)
@@ -340,6 +345,7 @@ def dashboard_data_json(request, slug):
 
 
 @csrf_exempt
+@ratelimit(key='user_or_api_key', rate='10/10s', method='POST', block=True)
 def dashboard_data(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
