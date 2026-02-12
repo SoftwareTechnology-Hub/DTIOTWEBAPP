@@ -2,950 +2,190 @@
 {% block content %}
 
 <style>
-    /* Mobile-First Base Styles */
-    .profile-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 1rem;
-    }
+    .profile-container { max-width: 800px; margin: 0 auto; padding: 1rem; }
+    .page-title { font-size: 1.5rem; font-weight: 600; color: #1f2937; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .page-title::before { content: ''; width: 4px; height: 24px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 2px; }
+    .profile-card { background: #ffffff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; margin-bottom: 1rem; }
+    .profile-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6; }
+    .profile-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .profile-icon svg { width: 22px; height: 22px; stroke: white; }
+    .profile-heading { font-size: 1.1rem; font-weight: 600; color: #1f2937; margin: 0; }
+    .info-row { display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem 0; border-bottom: 1px solid #f3f4f6; }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-row:first-child { padding-top: 0; }
+    .info-label { font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-size: 0.95rem; font-weight: 500; color: #1f2937; word-break: break-word; }
+    .api-section { background: #ffffff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; margin-bottom: 1rem; }
+    .api-title { font-size: 1.1rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .api-title svg { width: 18px; height: 18px; stroke: #10b981; flex-shrink: 0; }
+    .api-key-container { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 0.875rem; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+    .api-key-text { font-family: 'Courier New', monospace; font-size: 0.8rem; color: #1f2937; word-break: break-all; line-height: 1.5; }
+    .copy-button { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s ease; white-space: nowrap; width: 100%; }
+    .copy-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+    .copy-button:active { transform: translateY(0); }
+    .copy-button svg { width: 16px; height: 16px; stroke: white; fill: none; flex-shrink: 0; }
+    .copy-button.copied { background: linear-gradient(135deg, #059669, #047857); }
+    .regenerate-form { display: flex; width: 100%; }
+    .regenerate-button { background: transparent; color: #ef4444; border: 2px solid #ef4444; padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 0.4rem; width: 100%; }
+    .regenerate-button:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
+    .regenerate-button svg { width: 14px; height: 14px; stroke: currentColor; flex-shrink: 0; }
+    .message-container { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid #10b981; border-radius: 10px; padding: 0.875rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .message-container svg { width: 18px; height: 18px; stroke: #059669; flex-shrink: 0; }
+    .message-text { color: #059669; font-weight: 500; font-size: 0.875rem; line-height: 1.4; }
+    .help-section { background: #ffffff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; margin-bottom: 1rem; }
+    .section-header { font-size: 1.1rem; font-weight: 600; color: #1f2937; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-header svg { width: 20px; height: 20px; stroke: #10b981; flex-shrink: 0; }
+    .help-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+    .help-card:last-child { margin-bottom: 0; }
+    .help-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 0.875rem; border-bottom: 2px solid #e5e7eb; }
+    .help-card-header svg { width: 18px; height: 18px; stroke: #10b981; flex-shrink: 0; }
+    .help-card-header h4 { font-size: 1rem; font-weight: 600; color: #1f2937; margin: 0; }
+    .help-content { display: flex; flex-direction: column; gap: 1.25rem; }
+    .help-step { display: flex; gap: 0.875rem; align-items: flex-start; }
+    .step-number { background: linear-gradient(135deg, #10b981, #059669); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .step-content { flex: 1; min-width: 0; }
+    .step-content h5 { font-size: 0.95rem; font-weight: 600; color: #1f2937; margin: 0 0 0.5rem 0; }
+    .step-content p { font-size: 0.85rem; color: #6b7280; margin: 0 0 0.75rem 0; line-height: 1.6; }
+    .code-block { background: #1f2937; border-radius: 8px; padding: 0.875rem; margin-top: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .code-block code { font-family: 'Courier New', monospace; font-size: 0.75rem; color: #10b981; white-space: pre; display: block; line-height: 1.5; }
 
-    /* Page Title */
-    .page-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+    /* ── Language Tabs ── */
+    .lang-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0; }
+    .lang-tab-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: 8px 8px 0 0; border: 1px solid #e5e7eb; border-bottom: none; background: #f3f4f6; color: #6b7280; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; position: relative; bottom: -1px; font-family: inherit; }
+    .lang-tab-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .lang-tab-btn.active { background: #1f2937; color: #10b981; border-color: #1f2937; }
+    .lang-tab-btn:hover:not(.active) { background: #e5e7eb; color: #1f2937; }
+    .lang-panel { display: none; background: #1f2937; border-radius: 0 8px 8px 8px; border: 1px solid #1f2937; overflow: hidden; }
+    .lang-panel.show { display: block; }
+    .lang-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.875rem; background: #111827; border-bottom: 1px solid #374151; }
+    .lang-panel-header span { font-family: 'Courier New', monospace; font-size: 0.72rem; color: #6b7280; }
+    .btn-copy-code { background: transparent; border: 1px solid #374151; border-radius: 5px; color: #6b7280; font-size: 0.7rem; padding: 0.2rem 0.5rem; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s ease; }
+    .btn-copy-code:hover { color: #10b981; border-color: #10b981; }
 
-    .page-title::before {
-        content: '';
-        width: 4px;
-        height: 24px;
-        background: linear-gradient(135deg, #10b981, #059669);
-        border-radius: 2px;
-    }
+    /* ── Explanation Table ── */
+    .code-explain { margin-top: 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .explain-title { font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.6rem 1rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .explain-row { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.65rem 1rem; border-bottom: 1px solid #f3f4f6; }
+    .explain-row:last-child { border-bottom: none; }
+    .explain-code { font-family: 'Courier New', monospace; font-size: 0.72rem; color: #10b981; background: #1f2937; border-radius: 4px; padding: 0.15rem 0.45rem; display: inline-block; word-break: break-all; }
+    .explain-text { font-size: 0.8rem; color: #6b7280; line-height: 1.5; }
 
-    /* Profile Info Card */
-    .profile-card {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 1.25rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
-    }
-
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f3f4f6;
-    }
-
-    .profile-icon {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #10b981, #059669);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .profile-icon svg {
-        width: 22px;
-        height: 22px;
-        stroke: white;
-    }
-
-    .profile-heading {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin: 0;
-    }
-
-    .info-row {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 1rem 0;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    .info-row:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .info-row:first-child {
-        padding-top: 0;
-    }
-
-    .info-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .info-value {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: #1f2937;
-        word-break: break-word;
-    }
-
-    /* API Key Section */
-    .api-section {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 1.25rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
-    }
-
-    .api-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .api-title svg {
-        width: 18px;
-        height: 18px;
-        stroke: #10b981;
-        flex-shrink: 0;
-    }
-
-    .api-key-container {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 0.875rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .api-key-text {
-        font-family: 'Courier New', monospace;
-        font-size: 0.8rem;
-        color: #1f2937;
-        word-break: break-all;
-        line-height: 1.5;
-    }
-
-    .copy-button {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        border: none;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        width: 100%;
-    }
-
-    .copy-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-
-    .copy-button:active {
-        transform: translateY(0);
-    }
-
-    .copy-button svg {
-        width: 16px;
-        height: 16px;
-        stroke: white;
-        fill: none;
-        flex-shrink: 0;
-    }
-
-    .copy-button.copied {
-        background: linear-gradient(135deg, #059669, #047857);
-    }
-
-    /* Regenerate Button */
-    .regenerate-form {
-        display: flex;
-        width: 100%;
-    }
-
-    .regenerate-button {
-        background: transparent;
-        color: #ef4444;
-        border: 2px solid #ef4444;
-        padding: 0.6rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.8rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        width: 100%;
-    }
-
-    .regenerate-button:hover {
-        background: #ef4444;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    }
-
-    .regenerate-button svg {
-        width: 14px;
-        height: 14px;
-        stroke: currentColor;
-        flex-shrink: 0;
-    }
-
-    /* Success Message */
-    .message-container {
-        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-        border: 1px solid #10b981;
-        border-radius: 10px;
-        padding: 0.875rem 1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .message-container svg {
-        width: 18px;
-        height: 18px;
-        stroke: #059669;
-        flex-shrink: 0;
-    }
-
-    .message-text {
-        color: #059669;
-        font-weight: 500;
-        font-size: 0.875rem;
-        line-height: 1.4;
-    }
-
-    /* Help & Support Section */
-    .help-section {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 1.25rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
-    }
-
-    .section-header {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .section-header svg {
-        width: 20px;
-        height: 20px;
-        stroke: #10b981;
-        flex-shrink: 0;
-    }
-
-    /* Help Cards */
-    .help-card {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-    }
-
-    .help-card:last-child {
-        margin-bottom: 0;
-    }
-
-    .help-card-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.875rem;
-        border-bottom: 2px solid #e5e7eb;
-    }
-
-    .help-card-header svg {
-        width: 18px;
-        height: 18px;
-        stroke: #10b981;
-        flex-shrink: 0;
-    }
-
-    .help-card-header h4 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin: 0;
-    }
-
-    .help-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-
-    /* Help Steps */
-    .help-step {
-        display: flex;
-        gap: 0.875rem;
-        align-items: flex-start;
-    }
-
-    .step-number {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.85rem;
-        flex-shrink: 0;
-    }
-
-    .step-content {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .step-content h5 {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin: 0 0 0.5rem 0;
-    }
-
-    .step-content p {
-        font-size: 0.85rem;
-        color: #6b7280;
-        margin: 0 0 0.75rem 0;
-        line-height: 1.6;
-    }
-
-    /* Code Block */
-    .code-block {
-        background: #1f2937;
-        border-radius: 8px;
-        padding: 0.875rem;
-        margin-top: 0.5rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .code-block code {
-        font-family: 'Courier New', monospace;
-        font-size: 0.75rem;
-        color: #10b981;
-        white-space: pre;
-        display: block;
-        line-height: 1.5;
-    }
-
-    /* FAQ Items */
-    .faq-item {
-        padding: 0.875rem;
-        background: white;
-        border-radius: 8px;
-        border-left: 3px solid #10b981;
-        margin-bottom: 0.75rem;
-    }
-
-    .faq-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .faq-question {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .faq-question svg {
-        width: 14px;
-        height: 14px;
-        stroke: #10b981;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
-    .faq-question strong {
-        color: #1f2937;
-        font-size: 0.875rem;
-        line-height: 1.4;
-    }
-
-    .faq-answer {
-        font-size: 0.8rem;
-        color: #6b7280;
-        line-height: 1.6;
-        margin: 0;
-        padding-left: 1.25rem;
-    }
+    /* FAQ */
+    .faq-item { padding: 0.875rem; background: white; border-radius: 8px; border-left: 3px solid #10b981; margin-bottom: 0.75rem; }
+    .faq-item:last-child { margin-bottom: 0; }
+    .faq-question { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .faq-question svg { width: 14px; height: 14px; stroke: #10b981; flex-shrink: 0; margin-top: 2px; }
+    .faq-question strong { color: #1f2937; font-size: 0.875rem; line-height: 1.4; }
+    .faq-answer { font-size: 0.8rem; color: #6b7280; line-height: 1.6; margin: 0; padding-left: 1.25rem; }
+    .faq-answer code { background: #1f2937; color: #10b981; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.72rem; }
 
     /* Support Card */
-    .support-card {
-        background: linear-gradient(135deg, #f0fdf4, #d1fae5);
-        border: 1px solid #10b981;
-        border-radius: 10px;
-        padding: 1.25rem;
-        margin-top: 1rem;
-    }
+    .support-card { background: linear-gradient(135deg, #f0fdf4, #d1fae5); border: 1px solid #10b981; border-radius: 10px; padding: 1.25rem; margin-top: 1rem; }
+    .support-content { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1rem; }
+    .support-icon { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .support-icon svg { width: 20px; height: 20px; stroke: #10b981; }
+    .support-text { flex: 1; min-width: 0; }
+    .support-text h4 { font-size: 1rem; font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0; }
+    .support-text p { font-size: 0.85rem; color: #059669; margin: 0; line-height: 1.5; }
+    .support-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+    .support-button { padding: 0.875rem 1.25rem; border-radius: 10px; font-size: 0.875rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease; border: none; cursor: pointer; width: 100%; }
+    .support-button svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
+    .support-button.primary { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .support-button.primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16,185,129,0.3); }
+    .support-button.secondary { background: white; color: #10b981; border: 2px solid #10b981; }
+    .support-button.secondary:hover { background: #f0fdf4; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16,185,129,0.15); }
 
-    .support-content {
-        display: flex;
-        align-items: center;
-        gap: 0.875rem;
-        margin-bottom: 1rem;
-    }
-
-    .support-icon {
-        width: 40px;
-        height: 40px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .support-icon svg {
-        width: 20px;
-        height: 20px;
-        stroke: #10b981;
-    }
-
-    .support-text {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .support-text h4 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin: 0 0 0.25rem 0;
-    }
-
-    .support-text p {
-        font-size: 0.85rem;
-        color: #059669;
-        margin: 0;
-        line-height: 1.5;
-    }
-
-    .support-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .support-button {
-        padding: 0.875rem 1.25rem;
-        border-radius: 10px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-        border: none;
-        cursor: pointer;
-        width: 100%;
-    }
-
-    .support-button svg {
-        width: 16px;
-        height: 16px;
-        stroke: currentColor;
-        flex-shrink: 0;
-    }
-
-    .support-button.primary {
-        background: linear-gradient(135deg, #10b981, #059669);
-        color: white;
-    }
-
-    .support-button.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
-    }
-
-    .support-button.secondary {
-        background: white;
-        color: #10b981;
-        border: 2px solid #10b981;
-    }
-
-    .support-button.secondary:hover {
-        background: #f0fdf4;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.15);
-    }
-
-    /* ============================================
-       TABLET STYLES (min-width: 600px)
-       ============================================ */
     @media (min-width: 600px) {
-        .profile-container {
-            padding: 1.5rem;
-        }
-
-        .page-title {
-            font-size: 1.75rem;
-            margin-bottom: 2rem;
-        }
-
-        .page-title::before {
-            height: 28px;
-        }
-
-        .profile-card,
-        .api-section,
-        .help-section {
-            padding: 1.75rem;
-            border-radius: 14px;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-icon {
-            width: 44px;
-            height: 44px;
-        }
-
-        .profile-icon svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .profile-heading {
-            font-size: 1.15rem;
-        }
-
-        .help-card {
-            padding: 1.5rem;
-        }
-
-        .api-title {
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .api-title svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .api-key-container {
-            flex-direction: row;
-            align-items: center;
-            padding: 1rem;
-            gap: 1rem;
-        }
-
-        .api-key-text {
-            font-size: 0.875rem;
-            flex: 1;
-        }
-
-        .copy-button {
-            width: auto;
-            min-width: 120px;
-        }
-
-        .regenerate-button {
-            font-size: 0.85rem;
-            padding: 0.65rem 1.25rem;
-        }
-
-        .regenerate-button svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .section-header {
-            font-size: 1.25rem;
-        }
-
-        .section-header svg {
-            width: 22px;
-            height: 22px;
-        }
-
-        .step-number {
-            width: 32px;
-            height: 32px;
-            font-size: 0.9rem;
-        }
-
-        .step-content h5 {
-            font-size: 1rem;
-        }
-
-        .step-content p {
-            font-size: 0.9rem;
-        }
-
-        .code-block code {
-            font-size: 0.8rem;
-        }
-
-        .support-icon {
-            width: 48px;
-            height: 48px;
-        }
-
-        .support-icon svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .support-text h4 {
-            font-size: 1.1rem;
-        }
-
-        .support-text p {
-            font-size: 0.9rem;
-        }
-
-        .support-actions {
-            flex-direction: row;
-        }
-
-        .support-button {
-            font-size: 0.95rem;
-        }
-
-        .support-card {
-            padding: 1.75rem;
-        }
+        .profile-container { padding: 1.5rem; }
+        .page-title { font-size: 1.75rem; margin-bottom: 2rem; }
+        .page-title::before { height: 28px; }
+        .profile-card, .api-section, .help-section { padding: 1.75rem; border-radius: 14px; margin-bottom: 1.5rem; }
+        .profile-icon { width: 44px; height: 44px; }
+        .profile-icon svg { width: 24px; height: 24px; }
+        .help-card { padding: 1.5rem; }
+        .api-title { font-size: 1.2rem; margin-bottom: 1.5rem; }
+        .api-key-container { flex-direction: row; align-items: center; padding: 1rem; gap: 1rem; }
+        .api-key-text { font-size: 0.875rem; flex: 1; }
+        .copy-button { width: auto; min-width: 120px; }
+        .section-header { font-size: 1.25rem; }
+        .support-actions { flex-direction: row; }
+        .support-card { padding: 1.75rem; }
+        .explain-row { flex-direction: row; align-items: flex-start; gap: 1rem; }
+        .explain-code { flex-shrink: 0; width: 200px; }
     }
-
-    /* ============================================
-       DESKTOP STYLES (min-width: 1024px)
-       ============================================ */
     @media (min-width: 1024px) {
-        .profile-container {
-            padding: 2rem;
-        }
-
-        .page-title {
-            font-size: 1.8rem;
-        }
-
-        .profile-card,
-        .api-section,
-        .help-section {
-            padding: 2rem;
-            border-radius: 16px;
-        }
-
-        .help-card {
-            padding: 1.5rem;
-        }
-
-        .api-key-container {
-            border-radius: 12px;
-        }
-
-        .support-card {
-            padding: 2rem;
-        }
+        .profile-container { padding: 2rem; }
+        .profile-card, .api-section, .help-section { padding: 2rem; border-radius: 16px; }
     }
-
-    /* ============================================
-       EXTRA SMALL DEVICES (max-width: 360px)
-       ============================================ */
     @media (max-width: 360px) {
-        .profile-container {
-            padding: 0.75rem;
-        }
-
-        .page-title {
-            font-size: 1.3rem;
-        }
-
-        .page-title::before {
-            height: 20px;
-        }
-
-        .profile-card,
-        .api-section,
-        .help-section {
-            padding: 1rem;
-        }
-
-        .profile-icon {
-            width: 36px;
-            height: 36px;
-        }
-
-        .profile-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .profile-heading {
-            font-size: 1rem;
-        }
-
-        .help-card {
-            padding: 1rem;
-        }
-
-        .api-key-text {
-            font-size: 0.7rem;
-        }
-
-        .copy-button,
-        .regenerate-button {
-            padding: 0.6rem 0.8rem;
-            font-size: 0.75rem;
-        }
-
-        .step-number {
-            width: 24px;
-            height: 24px;
-            font-size: 0.75rem;
-        }
-
-        .code-block code {
-            font-size: 0.7rem;
-        }
-
-        .support-icon {
-            width: 36px;
-            height: 36px;
-        }
-
-        .support-icon svg {
-            width: 18px;
-            height: 18px;
-        }
+        .profile-container { padding: 0.75rem; }
+        .page-title { font-size: 1.3rem; }
+        .profile-card, .api-section, .help-section { padding: 1rem; }
+        .help-card { padding: 1rem; }
     }
-
-    /* ============================================
-       LANDSCAPE ORIENTATION (for phones)
-       ============================================ */
-    @media (max-height: 500px) and (orientation: landscape) {
-        .profile-container {
-            padding: 1rem;
-        }
-
-        .page-title {
-            margin-bottom: 1rem;
-        }
-
-        .profile-card,
-        .api-section,
-        .help-section {
-            margin-bottom: 1rem;
-        }
-    }
-
-    /* ============================================
-       PRINT STYLES
-       ============================================ */
-    @media print {
-        .copy-button,
-        .regenerate-button,
-        .support-actions {
-            display: none;
-        }
-
-        .profile-container {
-            max-width: 100%;
-        }
-
-        .profile-card,
-        .api-section,
-        .help-section {
-            box-shadow: none;
-            border: 1px solid #e5e7eb;
-            page-break-inside: avoid;
-        }
-    }
-
-    /* ============================================
-       ACCESSIBILITY ENHANCEMENTS
-       ============================================ */
-    @media (prefers-reduced-motion: reduce) {
-        * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
-
-    /* Focus states for keyboard navigation */
-    .copy-button:focus,
-    .regenerate-button:focus,
-    .support-button:focus {
-        outline: 3px solid #10b981;
-        outline-offset: 2px;
-    }
-
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-        .profile-card,
-        .api-section,
-        .help-section {
-            border: 2px solid #1f2937;
-        }
-
-        .copy-button,
-        .regenerate-button {
-            border: 2px solid currentColor;
-        }
-    }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    .copy-button:focus, .regenerate-button:focus, .support-button:focus { outline: 3px solid #10b981; outline-offset: 2px; }
 </style>
 
 <div class="profile-container">
     <h1 class="page-title">Profile</h1>
 
-    <!-- Success Messages -->
     {% if messages %}
         {% for message in messages %}
         <div class="message-container">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             <span class="message-text">{{ message }}</span>
         </div>
         {% endfor %}
     {% endif %}
 
-    <!-- Profile Information Card -->
+    <!-- Personal Information -->
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>
             <h2 class="profile-heading">Personal Information</h2>
         </div>
-        <div class="info-row">
-            <span class="info-label">Name</span>
-            <span class="info-value">{{ request.user.first_name }}</span>
-        </div>
-
-        <div class="info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ request.user.email }}</span>
-        </div>
-
-        <div class="info-row">
-            <span class="info-label">Phone</span>
-            <span class="info-value">{{ request.user.phone }}</span>
-        </div>
+        <div class="info-row"><span class="info-label">Name</span><span class="info-value">{{ request.user.first_name }}</span></div>
+        <div class="info-row"><span class="info-label">Email</span><span class="info-value">{{ request.user.email }}</span></div>
+        <div class="info-row"><span class="info-label">Phone</span><span class="info-value">{{ request.user.phone }}</span></div>
     </div>
 
-    <!-- API Key Section -->
+    <!-- API Key -->
     <div class="api-section">
         <h3 class="api-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
             Your API Key
         </h3>
-
         <div class="api-key-container">
             <span class="api-key-text" id="apiKey">{{ request.user.api_key }}</span>
             <button class="copy-button" onclick="copyApiKey()" aria-label="Copy API key to clipboard">
-                <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
+                <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                 <span id="copyText">Copy</span>
             </button>
         </div>
-
         <form action="{% url 'regenerate_api' %}" method="POST" class="regenerate-form">
             {% csrf_token %}
-            <button type="submit" class="regenerate-button" aria-label="Regenerate your API key">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="23 4 23 10 17 10"></polyline>
-                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                </svg>
+            <button type="submit" class="regenerate-button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                 Regenerate
             </button>
         </form>
     </div>
 
-    <!-- Help & Support Section -->
+    <!-- Help & Support -->
     <div class="help-section">
         <h3 class="section-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            Help & Support
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Help &amp; Support
         </h3>
 
-        <!-- How to Use API -->
+        <!-- Steps -->
         <div class="help-card">
             <div class="help-card-header">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
                 <h4>How to Use Your API Key</h4>
             </div>
             <div class="help-content">
@@ -956,74 +196,414 @@
                         <p>Click the "Copy" button above to copy your unique API key to clipboard.</p>
                     </div>
                 </div>
-
                 <div class="help-step">
                     <span class="step-number">2</span>
                     <div class="step-content">
-                        <h5>Include in API Requests</h5>
-                        <p>Add your API key in the request header:</p>
-                        <div class="code-block">
-                            <code>Authorization: Bearer YOUR_API_KEY</code>
-                        </div>
+                        <h5>Paste it into Your Script</h5>
+                        <p>Open the example code below, find <code style="background:#1f2937;color:#10b981;padding:0.1rem 0.4rem;border-radius:4px;font-size:0.75rem;">YOUR_API_KEY</code> and replace it with your actual key.</p>
                     </div>
                 </div>
-
                 <div class="help-step">
                     <span class="step-number">3</span>
                     <div class="step-content">
-                        <h5>Example Request</h5>
-                        <div class="code-block">
-<code>curl -X GET https://api.yourapp.com/data \
-  -H "Authorization: Bearer YOUR_API_KEY"</code>
-                        </div>
+                        <h5>Run the Script — Data Streams Automatically</h5>
+                        <p>The script loops forever, reads a sensor value, and sends it to the server every 3 seconds. Pick your language below.</p>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- ── Code Examples ── -->
+        <div class="help-card">
+            <div class="help-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                <h4>Send Data — Example Code</h4>
+            </div>
+
+            <p style="font-size:0.82rem;color:#6b7280;margin:0 0 0.875rem 0;">
+                Choose your language. Every example does the same thing — sends a sensor value to your feed every 3 seconds.
+                Replace <code style="background:#1f2937;color:#10b981;padding:0.1rem 0.4rem;border-radius:4px;font-size:0.72rem;">YOUR_API_KEY</code> with your key shown above.
+            </p>
+
+            <!-- Tabs -->
+            <div class="lang-tabs">
+                <button class="lang-tab-btn active" onclick="switchLang('py',this)" id="ltab-py"><span class="dot" style="background:#3b82f6"></span>Python</button>
+                <button class="lang-tab-btn" onclick="switchLang('c',this)" id="ltab-c"><span class="dot" style="background:#60a5fa"></span>C</button>
+                <button class="lang-tab-btn" onclick="switchLang('cpp',this)" id="ltab-cpp"><span class="dot" style="background:#f97316"></span>C++</button>
+                <button class="lang-tab-btn" onclick="switchLang('curl',this)" id="ltab-curl"><span class="dot" style="background:#10b981"></span>cURL</button>
+            </div>
+
+            <!-- Python -->
+            <div class="lang-panel show" id="lpanel-py">
+                <div class="lang-panel-header">
+                    <span>send_data.py &nbsp;·&nbsp; install: pip install requests</span>
+                    <button class="btn-copy-code" onclick="copyLangCode('lcode-py',this)">Copy</button>
+                </div>
+                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
+<code id="lcode-py">import requests   # library that lets Python make HTTP requests
+import random      # used to generate a fake sensor value
+import time        # used to pause between sends
+
+# ── What each variable does ──────────────────────────────
+API_URL   = "https://dtaiotweb.pythonanywhere.com/api/feed_data"
+# API_URL  → the web address of the server that stores your data
+
+API_KEY   = "YOUR_API_KEY"
+# API_KEY  → your secret key — proves to the server it's really you
+#            (like a password — keep it private!)
+
+FEED_NAME = "Hi Test"
+# FEED_NAME → the name of your data channel / sensor stream
+#             you can create multiple feeds with different names
+
+# ── Main loop — runs forever until you press Ctrl+C ─────
+while True:
+
+    value = round(random.uniform(20.0, 40.0), 2)
+    # random.uniform(20, 40) → random decimal between 20 and 40
+    # round(..., 2)          → trim to 2 decimal places e.g. 27.43
+    # In real use: replace this with your actual sensor reading
+
+    payload = {
+        "api_key":   API_KEY,    # who is sending (authentication)
+        "feed_name": FEED_NAME,  # which channel to write to
+        "value":     value       # the sensor number to store
+    }
+    # payload is a Python dict — requests.post() turns it into JSON
+
+    try:
+        response = requests.post(API_URL, json=payload, timeout=5)
+        # requests.post() → sends HTTP POST to the server
+        # json=payload    → converts dict to JSON and sets Content-Type
+        # timeout=5       → give up if server doesn't reply in 5 sec
+
+        print("Sent:", payload, "| Response:", response.json())
+        # response.json() → parses the server's reply into a Python dict
+
+    except Exception as e:
+        print("Error:", e)
+        # catches Wi-Fi drops / server errors so the loop keeps running
+
+    time.sleep(3)
+    # wait 3 seconds before the next reading — change to send faster/slower</code>
+                </div>
+            </div>
+
+            <!-- C -->
+            <div class="lang-panel" id="lpanel-c">
+                <div class="lang-panel-header">
+                    <span>send_data.c &nbsp;·&nbsp; compile: gcc send_data.c -o send_data -lcurl</span>
+                    <button class="btn-copy-code" onclick="copyLangCode('lcode-c',this)">Copy</button>
+                </div>
+                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
+<code id="lcode-c">/* ── Install libcurl first ──────────────────────────────
+   Linux : sudo apt install libcurl4-openssl-dev
+   macOS : brew install curl
+   ────────────────────────────────────────────────────── */
+#include &lt;stdio.h&gt;     /* printf, fprintf, snprintf       */
+#include &lt;stdlib.h&gt;    /* rand()                          */
+#include &lt;unistd.h&gt;    /* sleep()                         */
+#include &lt;curl/curl.h&gt; /* libcurl — sends the HTTP request */
+
+/* ── Configuration ──────────────────────────────────── */
+#define API_URL   "https://dtaiotweb.pythonanywhere.com/api/feed_data"
+/* API_URL   → server address that will receive your data  */
+
+#define API_KEY   "YOUR_API_KEY"
+/* API_KEY   → your secret key — proves you are authorised */
+
+#define FEED_NAME "Hi Test"
+/* FEED_NAME → name of the sensor channel on the server    */
+
+#define INTERVAL  3
+/* INTERVAL  → seconds to wait between each send           */
+
+/* ── Simulate a sensor reading ──────────────────────── */
+float read_sensor() {
+    /* In real use: read from GPIO, ADC, or serial here.
+       rand() % 2000  → 0 to 1999
+       / 100.0f       → 0.00 to 19.99
+       + 20.0f        → 20.00 to 39.99                   */
+    return 20.0f + (rand() % 2000) / 100.0f;
+}
+
+int main() {
+    curl_global_init(CURL_GLOBAL_ALL);
+    /* curl_global_init → initialises libcurl once at startup */
+
+    CURL     *curl; /* handle for one HTTP session            */
+    CURLcode  res;  /* stores success/error code after send   */
+
+    while (1) {  /* loop forever — Ctrl+C to stop */
+
+        float value = read_sensor();
+
+        /* Build the JSON string we will POST */
+        char json_body[256];
+        snprintf(json_body, sizeof(json_body),
+            "{\"api_key\":\"%s\",\"feed_name\":\"%s\",\"value\":%.2f}",
+            API_KEY, FEED_NAME, value);
+        /* snprintf → safely writes the formatted JSON into json_body
+           \"       → escaped double-quote inside a C string
+           %.2f     → float with exactly 2 decimal places             */
+
+        curl = curl_easy_init();   /* open a new curl session */
+        if (curl) {
+
+            struct curl_slist *headers = NULL;
+            headers = curl_slist_append(headers,
+                          "Content-Type: application/json");
+            /* Content-Type header → tells the server the body is JSON */
+
+            curl_easy_setopt(curl, CURLOPT_URL,        API_URL);
+            /* CURLOPT_URL        → where to send the HTTP request     */
+
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER,  headers);
+            /* CURLOPT_HTTPHEADER → attaches the Content-Type header   */
+
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS,  json_body);
+            /* CURLOPT_POSTFIELDS → the JSON text to include as body   */
+
+            res = curl_easy_perform(curl);
+            /* curl_easy_perform → actually fires the HTTP POST request */
+
+            if (res != CURLE_OK)
+                fprintf(stderr, "Error: %s\n", curl_easy_strerror(res));
+            else
+                printf("Sent: %.2f\n", value);
+
+            curl_slist_free_all(headers); /* free header list memory */
+            curl_easy_cleanup(curl);      /* close the curl session  */
+        }
+        sleep(INTERVAL); /* pause INTERVAL seconds before next send */
+    }
+
+    curl_global_cleanup(); /* clean up libcurl (never reached here) */
+    return 0;
+}</code>
+                </div>
+            </div>
+
+            <!-- C++ -->
+            <div class="lang-panel" id="lpanel-cpp">
+                <div class="lang-panel-header">
+                    <span>send_data.cpp &nbsp;·&nbsp; compile: g++ -std=c++17 send_data.cpp -o send_data -lcurl</span>
+                    <button class="btn-copy-code" onclick="copyLangCode('lcode-cpp',this)">Copy</button>
+                </div>
+                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
+<code id="lcode-cpp">// ── Install libcurl first ────────────────────────────────
+// Linux : sudo apt install libcurl4-openssl-dev
+// macOS : brew install curl
+// ────────────────────────────────────────────────────────
+#include &lt;iostream&gt;    // std::cout, std::cerr
+#include &lt;string&gt;      // std::string, std::to_string
+#include &lt;thread&gt;      // std::this_thread::sleep_for
+#include &lt;chrono&gt;      // std::chrono::seconds
+#include &lt;cstdlib&gt;     // rand()
+#include &lt;curl/curl.h&gt; // libcurl — HTTP requests
+
+// ── Configuration ─────────────────────────────────────────
+const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/feed_data";
+// API_URL   → server address that stores your data
+
+const std::string API_KEY   = "YOUR_API_KEY";
+// API_KEY   → your secret key (keep it private — like a password)
+
+const std::string FEED_NAME = "Hi Test";
+// FEED_NAME → name of the data channel / feed on the dashboard
+
+// ── Simulate a sensor reading ─────────────────────────────
+float readSensor() {
+    // In real use: read from GPIO, I2C sensor, serial port, etc.
+    // rand() % 2000 → integer 0–1999
+    // / 100.0f      → float 0.00–19.99
+    // + 20.0f       → float 20.00–39.99
+    return 20.0f + (rand() % 2000) / 100.0f;
+}
+
+// ── Send one reading to the server ────────────────────────
+void sendData(float value) {
+    CURL *curl = curl_easy_init(); // open one libcurl session
+    if (!curl) return;             // abort if curl init failed
+
+    // Build the JSON body using C++ string concatenation
+    std::string body =
+        "{\"api_key\":\""   + API_KEY            + "\","
+        // api_key  → authenticates you with the server
+        "\"feed_name\":\"" + FEED_NAME           + "\","
+        // feed_name → which channel to write the value to
+        "\"value\":"       + std::to_string(value) + "}";
+        // value → the sensor number to store
+        // std::to_string converts float to string e.g. "27.430000"
+
+    struct curl_slist *headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+    // Content-Type header → tells the server to expect JSON
+
+    curl_easy_setopt(curl, CURLOPT_URL,        API_URL.c_str());
+    // CURLOPT_URL       → target server address
+    // .c_str()          → converts std::string to C-style char*
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER,  headers);
+    // CURLOPT_HTTPHEADER → attach the Content-Type header
+
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS,  body.c_str());
+    // CURLOPT_POSTFIELDS → the JSON text to send as the body
+
+    CURLcode res = curl_easy_perform(curl);
+    // curl_easy_perform → fires the actual HTTP POST request
+
+    if (res != CURLE_OK)
+        std::cerr &lt;&lt; "Error: " &lt;&lt; curl_easy_strerror(res) &lt;&lt; "\n";
+    else
+        std::cout &lt;&lt; "Sent: " &lt;&lt; value &lt;&lt; "\n";
+
+    curl_slist_free_all(headers); // release header list memory
+    curl_easy_cleanup(curl);      // close the curl session
+}
+
+// ── Entry point ───────────────────────────────────────────
+int main() {
+    curl_global_init(CURL_GLOBAL_ALL); // init libcurl once at startup
+
+    while (true) {  // loop forever — press Ctrl+C to stop
+        sendData(readSensor());
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        // sleep_for(seconds(3)) → pause 3 seconds before next send
+    }
+
+    curl_global_cleanup(); // clean up (never reached)
+    return 0;
+}</code>
+                </div>
+            </div>
+
+            <!-- cURL -->
+            <div class="lang-panel" id="lpanel-curl">
+                <div class="lang-panel-header">
+                    <span>terminal — no install needed, works on Linux / macOS / Windows WSL</span>
+                    <button class="btn-copy-code" onclick="copyLangCode('lcode-curl',this)">Copy</button>
+                </div>
+                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
+<code id="lcode-curl"># ── One-shot test ─────────────────────────────────────────────
+# Sends a single value right now. Good for testing your key.
+
+curl -X POST https://dtaiotweb.pythonanywhere.com/api/feed_data \
+     -H "Content-Type: application/json" \
+     -d '{
+           "api_key":   "YOUR_API_KEY",
+           "feed_name": "Hi Test",
+           "value":     25.50
+         }'
+
+# What each part does:
+# curl              → command-line tool to make HTTP requests
+# -X POST           → use POST method (sending data, not reading)
+# -H "Content-Type…"→ tells the server the body is JSON
+# -d '{…}'          → the JSON data to send
+#   "api_key"       → your secret key so the server trusts you
+#   "feed_name"     → which channel/feed to write the value into
+#   "value"         → the number you want to store
+
+# Expected server response:
+# {"status": "ok", "feed": "Hi Test", "value": 25.5}
+
+
+# ── Loop every 3 seconds (Linux / macOS) ──────────────────────
+while true; do
+
+  VALUE=$(python3 -c "import random; print(round(random.uniform(20,40),2))")
+  # $( )      → runs a command and captures its output as a variable
+  # python3 -c "…" → executes a tiny Python one-liner to get random number
+
+  curl -s -X POST https://dtaiotweb.pythonanywhere.com/api/feed_data \
+       -H "Content-Type: application/json" \
+       -d "{\"api_key\":\"YOUR_API_KEY\",\"feed_name\":\"Hi Test\",\"value\":$VALUE}"
+  # -s    → silent mode (hides download progress bar)
+  # \"    → escaped quote — needed inside a double-quoted shell string
+  # $VALUE → inserts the random number generated above
+
+  echo "Sent: $VALUE"   # prints what was sent so you can see it working
+
+  sleep 3   # pause 3 seconds — change this to send faster or slower
+
+done   # go back to the top of the loop</code>
+                </div>
+            </div>
+
+            <!-- Explanation Table -->
+            <div class="code-explain">
+                <div class="explain-title">What each part of the code does</div>
+                <div class="explain-row">
+                    <span class="explain-code">API_URL</span>
+                    <span class="explain-text">The full web address of the server endpoint. This is where your data is sent — think of it as the "inbox" address on the server.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">API_KEY</span>
+                    <span class="explain-text">Your unique secret key. The server checks this to confirm it's really you sending data. Treat it like a password — don't share it publicly.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">FEED_NAME</span>
+                    <span class="explain-text">The name of the data channel. You can create multiple feeds (e.g. "Temperature", "Humidity") and each one stores separately on the dashboard.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">value</span>
+                    <span class="explain-text">The sensor reading you want to store. In the demo it's a random number between 20–40 simulating temperature. In real use, replace this with your actual sensor read.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">HTTP POST</span>
+                    <span class="explain-text">The method used to <em>send</em> data to a server. Unlike GET (which only reads), POST lets you include a body with your data attached.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">Content-Type: application/json</span>
+                    <span class="explain-text">A header that tells the server "the body I'm sending is formatted as JSON". Without this header the server may reject the request.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">JSON body</span>
+                    <span class="explain-text">The data is wrapped in JSON format — e.g. <code style="color:#10b981;font-size:0.7rem;">{"api_key":"…","feed_name":"…","value":25.5}</code> — before being sent. JSON is just structured text both sides can read.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">sleep(3) / time.sleep(3)</span>
+                    <span class="explain-text">Pauses the script for 3 seconds between sends. This prevents flooding the server. Change the number to send faster (e.g. 1) or slower (e.g. 10).</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">while True / while(1)</span>
+                    <span class="explain-text">Runs the send loop continuously forever. This is what makes it keep streaming live data. Stop it any time with Ctrl+C in your terminal.</span>
+                </div>
+                <div class="explain-row">
+                    <span class="explain-code">try / except (Python)</span>
+                    <span class="explain-text">Catches network errors (Wi-Fi drop, server timeout) so the script doesn't crash — it just prints the error and keeps running on the next loop.</span>
+                </div>
+            </div>
+
+        </div><!-- /code examples card -->
+
         <!-- Troubleshooting -->
         <div class="help-card">
             <div class="help-card-header">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                 <h4>Troubleshooting</h4>
             </div>
             <div class="help-content">
                 <div class="faq-item">
-                    <div class="faq-question">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                        </svg>
-                        <strong>API Key Not Working?</strong>
-                    </div>
-                    <p class="faq-answer">Make sure you're using the correct format in the Authorization header and that your API key hasn't expired. Try regenerating your key if issues persist.</p>
+                    <div class="faq-question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><strong>API Key Not Working?</strong></div>
+                    <p class="faq-answer">Make sure you copied the entire key with no extra spaces. The JSON field must be exactly <code>api_key</code> (lowercase, with underscore). Try regenerating your key if issues persist.</p>
                 </div>
-
                 <div class="faq-item">
-                    <div class="faq-question">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                        </svg>
-                        <strong>Getting 401 Unauthorized Error?</strong>
-                    </div>
-                    <p class="faq-answer">This usually means your API key is missing or invalid. Double-check that you've copied the entire key and included it in the Authorization header.</p>
+                    <div class="faq-question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><strong>Getting 401 Unauthorized Error?</strong></div>
+                    <p class="faq-answer">Your key is missing or invalid. Also confirm <code>Content-Type: application/json</code> is set — without it the server can't read your data.</p>
                 </div>
-
                 <div class="faq-item">
-                    <div class="faq-question">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                        </svg>
-                        <strong>Rate Limit Exceeded?</strong>
-                    </div>
-                    <p class="faq-answer">You've made too many requests in a short time. Wait a few minutes before trying again or upgrade your plan for higher limits.</p>
+                    <div class="faq-question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><strong>Rate Limit Exceeded?</strong></div>
+                    <p class="faq-answer">You're sending too fast. Increase the <code>sleep</code> value in your script (e.g. change <code>3</code> to <code>10</code>) to slow down requests.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><strong>libcurl Not Found (C / C++)?</strong></div>
+                    <p class="faq-answer">Install: <code>sudo apt install libcurl4-openssl-dev</code> (Linux) or <code>brew install curl</code> (macOS). Compile with <code>-lcurl</code> flag.</p>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><strong>requests Module Not Found (Python)?</strong></div>
+                    <p class="faq-answer">Run <code>pip install requests</code> in your terminal. On Raspberry Pi use <code>pip3 install requests</code>.</p>
                 </div>
             </div>
         </div>
@@ -1032,9 +612,7 @@
         <div class="support-card">
             <div class="support-content">
                 <div class="support-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </div>
                 <div class="support-text">
                     <h4>Need More Help?</h4>
@@ -1042,71 +620,59 @@
                 </div>
             </div>
             <div class="support-actions">
-                <a href="mailto:support@yourapp.com" class="support-button primary" aria-label="Contact support via email">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
+                <a href="mailto:support@yourapp.com" class="support-button primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     Email Support
                 </a>
-                <a href="#" class="support-button secondary" aria-label="View API documentation">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                    </svg>
+                <a href="#" class="support-button secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                     View Documentation
                 </a>
             </div>
         </div>
-    </div>
-</div>
+
+    </div><!-- /help-section -->
+</div><!-- /profile-container -->
 
 <script>
+    const langs = ['py','c','cpp','curl'];
+
+    function switchLang(lang, btn) {
+        langs.forEach(function(l) {
+            document.getElementById('lpanel-' + l).classList.remove('show');
+            document.getElementById('ltab-' + l).classList.remove('active');
+        });
+        document.getElementById('lpanel-' + lang).classList.add('show');
+        btn.classList.add('active');
+    }
+
+    function copyLangCode(id, btn) {
+        navigator.clipboard.writeText(document.getElementById(id).innerText).then(function() {
+            btn.textContent = 'Copied!';
+            setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+        });
+    }
+
     function copyApiKey() {
         const apiKey = document.getElementById('apiKey').textContent;
         const copyButton = document.querySelector('.copy-button');
         const copyText = document.getElementById('copyText');
         const copyIcon = document.getElementById('copyIcon');
-        
-        // Copy to clipboard
         navigator.clipboard.writeText(apiKey).then(() => {
-            // Change button appearance
             copyButton.classList.add('copied');
             copyText.textContent = 'Copied!';
-            
-            // Change icon to checkmark
             copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
-            
-            // Reset after 2 seconds
             setTimeout(() => {
                 copyButton.classList.remove('copied');
                 copyText.textContent = 'Copy';
                 copyIcon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
             }, 2000);
         }).catch(err => {
-            console.error('Failed to copy: ', err);
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = apiKey;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                copyButton.classList.add('copied');
-                copyText.textContent = 'Copied!';
-                copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
-                setTimeout(() => {
-                    copyButton.classList.remove('copied');
-                    copyText.textContent = 'Copy';
-                    copyIcon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
-                }, 2000);
-            } catch (err) {
-                console.error('Fallback copy failed: ', err);
-            }
-            document.body.removeChild(textArea);
+            const t = document.createElement('textarea');
+            t.value = apiKey; t.style.position = 'fixed'; t.style.left = '-999999px';
+            document.body.appendChild(t); t.select();
+            try { document.execCommand('copy'); copyButton.classList.add('copied'); copyText.textContent = 'Copied!'; } catch(e) {}
+            document.body.removeChild(t);
         });
     }
 </script>
