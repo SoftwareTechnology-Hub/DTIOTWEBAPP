@@ -258,7 +258,10 @@ def Feed_data(request):
 
     if value is None:
         return JsonResponse({"error": "Value required"}, status=400)
-
+    try:
+        value = float(value)  # convert to numeric
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "Value Type Error"}, status=400)
 
     # save data
     FeedData.objects.create(feed=feed, value=value)
@@ -397,7 +400,10 @@ def dashboard_data(request):
     
     if value is None:
         return JsonResponse({"error": "Value required"}, status=400)
-
+    try:
+        value = float(value)  # convert to numeric
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "Value Type Error"}, status=400)
     WidgetData.objects.create(widget=widget, value=value)
 
     old_ids = (
