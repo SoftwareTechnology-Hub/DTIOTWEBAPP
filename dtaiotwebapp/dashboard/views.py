@@ -386,6 +386,9 @@ def dashboard_data(request):
     )
     WidgetData.objects.filter(id__in=list(old_ids)).delete()
 
-    return JsonResponse({"message": "Data saved"})
+    return JsonResponse({"status": "success",
+    "dashboard": dashboard.title,
+    "widget": widget.name,
+    "value": value})
 
     
