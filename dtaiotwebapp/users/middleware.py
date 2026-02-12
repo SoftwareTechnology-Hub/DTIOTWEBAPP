@@ -1,5 +1,7 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import render
+from django.http import JsonResponse
+
 
 class AppOnlyAccessMiddleware:
     def __init__(self, get_response):
@@ -8,7 +10,14 @@ class AppOnlyAccessMiddleware:
     def __call__(self, request):
         # Always allow API paths
         if request.path.startswith('/api/'):
-            return self.get_response(request)
+            response = self.get_response(request)
+        
+            if response.status_code in [400, 403, 404, 500]:
+                return JsonResponse(
+                    {"error": response.reason_phrase},
+                    status=response.status_code
+                )
+            return response
 
         if request.path.startswith('/admin/'):
             return self.get_response(request)
