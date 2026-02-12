@@ -30,4 +30,4 @@ class AppOnlyAccessMiddleware:
         # return HttpResponseForbidden("App access only")
 
         # Otherwise block - show 403 error page
-        return render(request, '403.html', status=403)orbidden("App access only")
+        return render(request, '403.html', status=403)
