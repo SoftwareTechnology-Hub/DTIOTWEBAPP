@@ -323,7 +323,7 @@ def dashboard_data_json(request, slug):
         result.append({
             "widget": widget.name,
             "type": widget.widget_type,
-            "labels": [r.created_at.strftime("%H:%M:%S") for r in records],
+            "labels": [r.created_at.isoformat() for r in records],  # Send ISO format timestamps
             "values": [r.value for r in records]
         })
     return JsonResponse(result, safe=False)

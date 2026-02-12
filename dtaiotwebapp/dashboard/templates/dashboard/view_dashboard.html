@@ -1270,7 +1270,18 @@ function loadDashboardData() {
                     }
                     
                     if (w.labels && w.values) {
-                        charts[w.widget].data.labels = w.labels;
+                        // Convert ISO timestamps to local time
+                        const localLabels = w.labels.map(isoTime => {
+                            const date = new Date(isoTime);
+                            return date.toLocaleTimeString('en-IN', { 
+                                hour: '2-digit', 
+                                minute: '2-digit', 
+                                second: '2-digit',
+                                hour12: false 
+                            });
+                        });
+                        
+                        charts[w.widget].data.labels = localLabels;
                         charts[w.widget].data.datasets[0].data = w.values;
                         charts[w.widget].update('none');
                     }
