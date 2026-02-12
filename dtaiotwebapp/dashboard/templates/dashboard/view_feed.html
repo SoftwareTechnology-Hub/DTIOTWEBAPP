@@ -663,7 +663,18 @@ function loadData() {
     fetch(`/feed/json/${feedSlug}/`)
         .then(res => res.json())
         .then(data => {
-            chart.data.labels = data.labels;
+            // Convert ISO timestamps to local time
+            const localLabels = data.labels.map(isoTime => {
+                const date = new Date(isoTime);
+                return date.toLocaleTimeString('en-IN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit',
+                    hour12: false 
+                });
+            });
+            
+            chart.data.labels = localLabels;
             chart.data.datasets[0].data = data.values;
             chart.update();
             
