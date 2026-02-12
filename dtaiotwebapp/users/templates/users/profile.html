@@ -68,35 +68,35 @@
     .step-content p { font-size: 0.85rem; color: #6b7280; margin: 0 0 0.75rem 0; line-height: 1.6; }
 
     /* ── Code Blocks ── */
-    .code-block { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0 0 8px 8px; padding: 0.875rem; margin-top: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .code-block code { font-family: 'Courier New', monospace; font-size: 0.72rem; color: #065f46; white-space: pre; display: block; line-height: 1.7; }
+    .code-block { background: #1f2937; border-radius: 8px; padding: 0.875rem; margin-top: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .code-block code { font-family: 'Courier New', monospace; font-size: 0.72rem; color: #10b981; white-space: pre; display: block; line-height: 1.5; }
 
     /* ── Language Tabs ── */
     .lang-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0; }
-    .lang-tab-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem; border-radius: 8px 8px 0 0; border: 1px solid #d1fae5; border-bottom: none; background: #f9fafb; color: #6b7280; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; position: relative; bottom: -1px; font-family: inherit; min-height: 36px; }
+    .lang-tab-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.75rem; border-radius: 8px 8px 0 0; border: 1px solid #e5e7eb; border-bottom: none; background: #f3f4f6; color: #6b7280; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; position: relative; bottom: -1px; font-family: inherit; min-height: 36px; }
     .lang-tab-btn .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .lang-tab-btn.active { background: #f0fdf4; color: #059669; border-color: #bbf7d0; border-bottom-color: #f0fdf4; }
-    .lang-tab-btn:hover:not(.active) { background: #ecfdf5; color: #059669; border-color: #d1fae5; }
-    .lang-panel { display: none; background: #f0fdf4; border-radius: 0 8px 8px 8px; border: 1px solid #bbf7d0; overflow: hidden; }
+    .lang-tab-btn.active { background: #1f2937; color: #10b981; border-color: #1f2937; }
+    .lang-tab-btn:hover:not(.active) { background: #e5e7eb; color: #1f2937; }
+    .lang-panel { display: none; background: #1f2937; border-radius: 0 8px 8px 8px; border: 1px solid #1f2937; overflow: hidden; }
     .lang-panel.show { display: block; }
-    .lang-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.875rem; background: #dcfce7; border-bottom: 1px solid #bbf7d0; flex-wrap: wrap; gap: 0.4rem; }
-    .lang-panel-header span { font-family: 'Courier New', monospace; font-size: 0.68rem; color: #15803d; word-break: break-all; flex: 1; }
-    .btn-copy-code { background: white; border: 1px solid #bbf7d0; border-radius: 5px; color: #059669; font-size: 0.7rem; padding: 0.25rem 0.6rem; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0; min-height: 28px; }
-    .btn-copy-code:hover { background: #059669; color: white; border-color: #059669; }
+    .lang-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.875rem; background: #111827; border-bottom: 1px solid #374151; flex-wrap: wrap; gap: 0.4rem; }
+    .lang-panel-header span { font-family: 'Courier New', monospace; font-size: 0.68rem; color: #6b7280; word-break: break-all; flex: 1; }
+    .btn-copy-code { background: transparent; border: 1px solid #374151; border-radius: 5px; color: #6b7280; font-size: 0.7rem; padding: 0.25rem 0.6rem; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0; min-height: 28px; }
+    .btn-copy-code:hover { color: #10b981; border-color: #10b981; }
 
     /* ── Explanation Table ── */
     .code-explain { margin-top: 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
     .explain-title { font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.6rem 1rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
     .explain-row { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.65rem 1rem; border-bottom: 1px solid #f3f4f6; }
     .explain-row:last-child { border-bottom: none; }
-    .explain-code { font-family: 'Courier New', monospace; font-size: 0.7rem; color: #065f46; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 4px; padding: 0.15rem 0.45rem; display: inline-block; word-break: break-all; }
+    .explain-code { font-family: 'Courier New', monospace; font-size: 0.7rem; color: #10b981; background: #1f2937; border-radius: 4px; padding: 0.15rem 0.45rem; display: inline-block; word-break: break-all; }
     .explain-text { font-size: 0.8rem; color: #6b7280; line-height: 1.5; }
 
     /* ── Error Reference Tables ── */
     .error-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 0.75rem; }
     .error-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 520px; }
-    .error-table thead tr { background: #dcfce7; }
-    .error-table thead th { color: #065f46; font-weight: 700; padding: 0.65rem 0.875rem; text-align: left; white-space: nowrap; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 2px solid #bbf7d0; }
+    .error-table thead tr { background: #1f2937; }
+    .error-table thead th { color: #10b981; font-weight: 700; padding: 0.65rem 0.875rem; text-align: left; white-space: nowrap; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; }
     .error-table tbody tr { border-bottom: 1px solid #f3f4f6; background: white; }
     .error-table tbody tr:last-child { border-bottom: none; }
     .error-table tbody tr:hover { background: #f9fafb; }
@@ -110,7 +110,7 @@
     .badge-purple{ background: #ede9fe; color: #7c3aed; }
     .badge-gray  { background: #f3f4f6; color: #4b5563; }
     .badge-green { background: #d1fae5; color: #059669; }
-    .msg-code { font-family: 'Courier New', monospace; font-size: 0.7rem; background: #dcfce7; color: #065f46; border: 1px solid #bbf7d0; padding: 0.1rem 0.35rem; border-radius: 3px; }
+    .msg-code { font-family: 'Courier New', monospace; font-size: 0.7rem; background: #1f2937; color: #10b981; padding: 0.1rem 0.35rem; border-radius: 3px; }
 
     /* Mobile card view for error tables */
     .error-cards { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.75rem; }
@@ -128,7 +128,7 @@
     .faq-question svg { width: 14px; height: 14px; stroke: #10b981; flex-shrink: 0; margin-top: 2px; }
     .faq-question strong { color: #1f2937; font-size: 0.875rem; line-height: 1.4; }
     .faq-answer { font-size: 0.8rem; color: #6b7280; line-height: 1.6; margin: 0; padding-left: 1.25rem; }
-    .faq-answer code { background: #dcfce7; color: #065f46; border: 1px solid #bbf7d0; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.72rem; }
+    .faq-answer code { background: #1f2937; color: #10b981; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.72rem; }
 
     /* ── Support Card ── */
     .support-card { background: linear-gradient(135deg, #f0fdf4, #d1fae5); border: 1px solid #10b981; border-radius: 10px; padding: 1.25rem; margin-top: 1rem; }
@@ -493,12 +493,9 @@ done</code>
 
             <div class="lang-tabs" role="tablist" style="margin-top:0.75rem;">
                 <button class="lang-tab-btn active" onclick="switchLang2('dpy',this)" id="ltab2-dpy" role="tab"><span class="dot" style="background:#3b82f6"></span>Python</button>
-                <button class="lang-tab-btn" onclick="switchLang2('dc',this)" id="ltab2-dc" role="tab"><span class="dot" style="background:#60a5fa"></span>C</button>
-                <button class="lang-tab-btn" onclick="switchLang2('dcpp',this)" id="ltab2-dcpp" role="tab"><span class="dot" style="background:#f97316"></span>C++</button>
                 <button class="lang-tab-btn" onclick="switchLang2('dcurl',this)" id="ltab2-dcurl" role="tab"><span class="dot" style="background:#10b981"></span>cURL</button>
             </div>
 
-            <!-- Dashboard Python Panel -->
             <div class="lang-panel show" id="lpanel2-dpy">
                 <div class="lang-panel-header">
                     <span>dashboard_send.py · pip install requests</span>
@@ -507,258 +504,39 @@ done</code>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
 <code id="lcode-dpy">import requests
 import random
-import time
 
-API_URL    = "https://dtaiotweb.pythonanywhere.com/api/dashboard_data"
-API_KEY    = "YOUR_API_KEY"
-DASHBOARD  = "Test Dashboard"  # must match your dashboard name exactly
-WIDGET     = "Temperature"     # must match your widget name exactly
+API_URL   = "https://dtaiotweb.pythonanywhere.com/api/dashboard_data"
+API_KEY   = "YOUR_API_KEY"
 
-while True:
-    value = round(random.uniform(20.0, 40.0), 2)
-    payload = {
-        "api_key":   API_KEY,
-        "dashboard": DASHBOARD,
-        "widget":    WIDGET,
-        "value":     value
-    }
-    try:
-        response = requests.post(API_URL, json=payload, timeout=5)
-        if response.status_code == 403:
-            print("Rate limit exceeded — slow down!")
-        elif response.status_code == 401:
-            print("Authentication failed — check key, dashboard, or widget name")
-        elif response.status_code == 404:
-            print("Widget not found — check widget name exists in your dashboard")
-        elif response.status_code == 405:
-            print("POST method required")
-        else:
-            print("Sent:", value, "| Response:", response.json())
-    except Exception as e:
-        print("Error:", e)
-    time.sleep(3)</code>
+payload = {
+    "api_key":   API_KEY,
+    "dashboard": "Test Dashboard",   # name of your dashboard
+    "widget":    "Temperature",      # name of the widget on that dashboard
+    "value":     round(random.uniform(20, 40), 2)
+}
+
+response = requests.post(API_URL, json=payload, timeout=5)
+
+if response.status_code == 403:
+    print("Rate limit exceeded — slow down!")
+elif response.status_code == 401:
+    print("Authentication failed — check key, dashboard, or widget name")
+elif response.status_code == 404:
+    print("Widget not found — check widget name exists in your dashboard")
+elif response.status_code == 405:
+    print("POST method required")
+else:
+    print(response.json())</code>
                 </div>
             </div>
 
-            <!-- Dashboard C Panel -->
-            <div class="lang-panel" id="lpanel2-dc">
-                <div class="lang-panel-header">
-                    <span>dashboard_send.c · gcc dashboard_send.c -o dashboard_send -lcurl</span>
-                    <button class="btn-copy-code" onclick="copyLangCode('lcode-dc',this)">Copy</button>
-                </div>
-                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dc">/* ── Install libcurl first ──────────────────────────────
-   Linux : sudo apt install libcurl4-openssl-dev
-   macOS : brew install curl
-   ─────────────────────────────────────────────────────── */
-#include &lt;stdio.h&gt;      /* printf, fprintf, snprintf      */
-#include &lt;stdlib.h&gt;     /* rand()                         */
-#include &lt;unistd.h&gt;     /* sleep()                        */
-#include &lt;curl/curl.h&gt;  /* libcurl — sends HTTP requests  */
-
-/* ── Configuration ─────────────────────────────────── */
-#define API_URL    "https://dtaiotweb.pythonanywhere.com/api/dashboard_data"
-/* API_URL    → dashboard endpoint — different from feed_data */
-
-#define API_KEY    "YOUR_API_KEY"
-/* API_KEY    → your secret key — keep it private */
-
-#define DASHBOARD  "Test Dashboard"
-/* DASHBOARD  → must match your dashboard name exactly (case-sensitive) */
-
-#define WIDGET     "Temperature"
-/* WIDGET     → must match the widget name inside that dashboard exactly */
-
-#define INTERVAL   3
-/* INTERVAL   → seconds between each send — keep at 3+ to avoid rate limit */
-
-/* ── Simulate a sensor reading ──────────────────────── */
-float read_sensor() {
-    /* Replace with real GPIO / ADC read in production.
-       rand() % 2000 → 0–1999  →  / 100.0f → 0.00–19.99
-       + 20.0f       → 20.00–39.99 degrees               */
-    return 20.0f + (rand() % 2000) / 100.0f;
-}
-
-int main() {
-    curl_global_init(CURL_GLOBAL_ALL);
-    /* curl_global_init → must be called once before any curl use */
-
-    CURL     *curl;
-    CURLcode  res;
-
-    while (1) {   /* loop forever — Ctrl+C to stop */
-
-        float value = read_sensor();
-
-        /* Build JSON body with all four required fields */
-        char json_body[512];
-        snprintf(json_body, sizeof(json_body),
-            "{"
-            "\"api_key\":\"%s\","      /* authentication key  */
-            "\"dashboard\":\"%s\","    /* dashboard name      */
-            "\"widget\":\"%s\","       /* widget name         */
-            "\"value\":%.2f"           /* numeric sensor value */
-            "}",
-            API_KEY, DASHBOARD, WIDGET, value);
-        /* snprintf → safely formats the JSON string into json_body
-           %.2f     → float rounded to 2 decimal places e.g. 27.43  */
-
-        curl = curl_easy_init();  /* open a new libcurl session */
-        if (curl) {
-            struct curl_slist *headers = NULL;
-            headers = curl_slist_append(headers,
-                          "Content-Type: application/json");
-            /* Content-Type header → tells server body is JSON,
-               without it the server returns 400 Invalid JSON   */
-
-            curl_easy_setopt(curl, CURLOPT_URL,        API_URL);
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER,  headers);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS,  json_body);
-            /* CURLOPT_POSTFIELDS → sets the JSON string as POST body
-               libcurl automatically sets method to POST when this is set */
-
-            res = curl_easy_perform(curl);
-            /* curl_easy_perform → fires the actual HTTP POST request */
-
-            if (res == CURLE_OK) {
-                printf("Sent to widget '%s': %.2f\n", WIDGET, value);
-            } else {
-                fprintf(stderr, "curl error: %s\n",
-                        curl_easy_strerror(res));
-                /* curl_easy_strerror → converts error code to readable string */
-            }
-
-            curl_slist_free_all(headers); /* free header list memory */
-            curl_easy_cleanup(curl);      /* close the curl session  */
-        }
-
-        sleep(INTERVAL); /* wait before next send — avoids rate limit */
-    }
-
-    curl_global_cleanup(); /* release global libcurl resources */
-    return 0;
-}</code>
-                </div>
-            </div>
-
-            <!-- Dashboard C++ Panel -->
-            <div class="lang-panel" id="lpanel2-dcpp">
-                <div class="lang-panel-header">
-                    <span>dashboard_send.cpp · g++ -std=c++17 dashboard_send.cpp -o dashboard_send -lcurl</span>
-                    <button class="btn-copy-code" onclick="copyLangCode('lcode-dcpp',this)">Copy</button>
-                </div>
-                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dcpp">// ── Install libcurl first ────────────────────────────────
-// Linux : sudo apt install libcurl4-openssl-dev
-// macOS : brew install curl
-// Compile: g++ -std=c++17 dashboard_send.cpp -o dashboard_send -lcurl
-// ─────────────────────────────────────────────────────────
-#include &lt;iostream&gt;    // std::cout, std::cerr
-#include &lt;string&gt;      // std::string, std::to_string
-#include &lt;thread&gt;      // std::this_thread::sleep_for
-#include &lt;chrono&gt;      // std::chrono::seconds
-#include &lt;cstdlib&gt;     // rand()
-#include &lt;curl/curl.h&gt; // libcurl — HTTP requests
-
-// ── Configuration ─────────────────────────────────────────
-const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/dashboard_data";
-// API_URL    → dashboard endpoint — different from /api/feed_data
-
-const std::string API_KEY   = "YOUR_API_KEY";
-// API_KEY    → your secret key (keep it private — like a password)
-
-const std::string DASHBOARD = "Test Dashboard";
-// DASHBOARD  → must match your dashboard name exactly (case-sensitive)
-
-const std::string WIDGET    = "Temperature";
-// WIDGET     → must match the widget name inside that dashboard exactly
-
-// ── Simulate a sensor reading ─────────────────────────────
-float readSensor() {
-    // Replace with a real GPIO / I2C / serial read in production.
-    // rand() % 2000 → 0–1999  / 100.0f → 0.00–19.99  + 20 → 20.00–39.99
-    return 20.0f + (rand() % 2000) / 100.0f;
-}
-
-// ── Helper: convert float to string with 2 decimal places ─
-std::string f2s(float v) {
-    // std::to_string gives 6 decimal places by default; we trim to 2
-    std::string s = std::to_string(v);
-    auto dot = s.find('.');
-    if (dot != std::string::npos && s.size() > dot + 3)
-        s = s.substr(0, dot + 3); // keep only 2 digits after '.'
-    return s;
-}
-
-// ── Send one reading to the dashboard widget ──────────────
-void sendData(float value) {
-    CURL *curl = curl_easy_init(); // open one libcurl session
-    if (!curl) return;             // abort if curl initialisation failed
-
-    // Build the JSON body — four required fields for dashboard API
-    std::string body =
-        "{"
-        "\"api_key\":\""   + API_KEY   + "\","
-        // api_key   → authenticates you with the server
-        "\"dashboard\":\"" + DASHBOARD + "\","
-        // dashboard → which dashboard page to target
-        "\"widget\":\""    + WIDGET    + "\","
-        // widget    → which widget inside that dashboard receives the value
-        "\"value\":"       + f2s(value) +
-        // value     → the numeric sensor reading (must be a number)
-        "}";
-
-    struct curl_slist *headers = nullptr;
-    headers = curl_slist_append(headers, "Content-Type: application/json");
-    // Content-Type: application/json → required or server returns 400
-
-    curl_easy_setopt(curl, CURLOPT_URL,        API_URL.c_str());
-    // CURLOPT_URL       → target server address (.c_str() = std::string → char*)
-
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER,  headers);
-    // CURLOPT_HTTPHEADER → attach our Content-Type header
-
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS,  body.c_str());
-    // CURLOPT_POSTFIELDS → JSON body; libcurl sets method to POST automatically
-
-    CURLcode res = curl_easy_perform(curl);
-    // curl_easy_perform → fires the HTTP POST request
-
-    if (res == CURLE_OK)
-        std::cout &lt;&lt; "Sent to '" &lt;&lt; WIDGET &lt;&lt; "': " &lt;&lt; value &lt;&lt; "\n";
-    else
-        std::cerr &lt;&lt; "curl error: " &lt;&lt; curl_easy_strerror(res) &lt;&lt; "\n";
-
-    curl_slist_free_all(headers); // free header list memory
-    curl_easy_cleanup(curl);      // close the curl session
-}
-
-// ── Entry point ───────────────────────────────────────────
-int main() {
-    curl_global_init(CURL_GLOBAL_ALL); // init libcurl once at program start
-
-    while (true) {   // loop forever — press Ctrl+C to stop
-        sendData(readSensor());
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        // sleep_for(seconds(3)) → pause 3 s to stay within rate limit
-    }
-
-    curl_global_cleanup(); // release libcurl global resources (never reached)
-    return 0;
-}</code>
-                </div>
-            </div>
-
-            <!-- Dashboard cURL Panel -->
             <div class="lang-panel" id="lpanel2-dcurl">
                 <div class="lang-panel-header">
                     <span>terminal — dashboard widget POST</span>
                     <button class="btn-copy-code" onclick="copyLangCode('lcode-dcurl',this)">Copy</button>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dcurl"># ── One-shot test ─────────────────────────────────────────
-curl -X POST https://dtaiotweb.pythonanywhere.com/api/dashboard_data \
+<code id="lcode-dcurl">curl -X POST https://dtaiotweb.pythonanywhere.com/api/dashboard_data \
      -H "Content-Type: application/json" \
      -d '{
            "api_key":   "YOUR_API_KEY",
@@ -768,17 +546,7 @@ curl -X POST https://dtaiotweb.pythonanywhere.com/api/dashboard_data \
          }'
 
 # Expected response:
-# {"message": "Data saved"}
-
-# ── Loop every 3 seconds (Linux / macOS) ──────────────────
-while true; do
-  VALUE=$(python3 -c "import random; print(round(random.uniform(20,40),2))")
-  curl -s -X POST https://dtaiotweb.pythonanywhere.com/api/dashboard_data \
-       -H "Content-Type: application/json" \
-       -d "{\"api_key\":\"YOUR_API_KEY\",\"dashboard\":\"Test Dashboard\",\"widget\":\"Temperature\",\"value\":$VALUE}"
-  echo "Sent to widget: $VALUE"
-  sleep 3
-done</code>
+# {"message": "Data saved"}</code>
                 </div>
             </div>
 
@@ -958,7 +726,7 @@ done</code>
                 </div>
             </div>
             <div class="support-actions">
-                <a href="mailto:support@yourapp.com" class="support-button primary">
+                <a href="mailto:support@digitoadtech.com" class="support-button primary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     Email Support
                 </a>
@@ -985,7 +753,7 @@ done</code>
     }
 
     /* ── Dashboard lang tabs ── */
-    const langs2 = ['dpy','dc','dcpp','dcurl'];
+    const langs2 = ['dpy','dcurl'];
     function switchLang2(lang, btn) {
         langs2.forEach(function(l) {
             document.getElementById('lpanel2-' + l).classList.remove('show');
