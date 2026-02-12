@@ -352,23 +352,29 @@ def dashboard_data(request):
         return JsonResponse({"error": "Missing fields"}, status=400)
 
     # USER
-    user = get_object_or_404(CustomUser, api_key=api_key)
+    try:
+        user = CustomUser.objects.get(api_key=api_key)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({"error": "Invalid API key"}, status=403)
 
     # DASHBOARD
-    dashboard = get_object_or_404(
-        Custom_Dashboard,
-        user=user,
-        # slug=dashboard_slug
-        title__iexact=dashboard_name  # matches "Hi Test" or "hi test"
+    try:
+        dashboard = Custom_Dashboard.objects.get(
+            user=user,
+            title__iexact=dashboard_name
+        )
+    except Custom_Dashboard.DoesNotExist:
+        return JsonResponse({"error": "Dashboard not found"}, status=404)
 
-    )
+    # WIDGET
+    try:
+        widget = DashboardWidget.objects.get(
+            dashboard=dashboard,
+            name__iexact=widget_name
+        )
+    except DashboardWidget.DoesNotExist:
+        return JsonResponse({"error": "Widget not found"}, status=404)
 
-    # WIDGET (BY NAME ❗)
-    widget = get_object_or_404(
-        DashboardWidget,
-        dashboard=dashboard,
-        name__iexact=widget_name
-    )
 
     WidgetData.objects.create(widget=widget, value=value)
 
