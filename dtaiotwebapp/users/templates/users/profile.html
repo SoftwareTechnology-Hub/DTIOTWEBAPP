@@ -1,768 +1,1114 @@
 {% extends "global/base.html" %}
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile – IoT Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0b0f1a;
-    --surface: #111827;
-    --card: #161d2e;
-    --border: #1e2d45;
-    --accent: #00d4ff;
-    --accent2: #7c3aed;
-    --accent3: #10b981;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --c-color: #5b9bd5;
-    --cpp-color: #f97316;
-    --py-color: #3b82f6;
-    --curl-color: #10b981;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse at 20% 0%, rgba(0,212,255,0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 0%, rgba(124,58,237,0.06) 0%, transparent 50%);
-  }
-
-  .page-wrap {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
-  }
-
-  /* ─── Page Header ─── */
-  .page-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .avatar {
-    width: 52px; height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem; font-weight: 800;
-    flex-shrink: 0;
-  }
-  .page-header h1 {
-    font-size: 1.6rem; font-weight: 800;
-    letter-spacing: -0.02em;
-    color: #fff;
-  }
-  .page-header p { color: var(--muted); font-size: .85rem; margin-top: 2px; }
-
-  /* ─── Alert Messages ─── */
-  .alert {
-    background: rgba(16,185,129,.1);
-    border: 1px solid rgba(16,185,129,.3);
-    border-left: 3px solid var(--accent3);
-    border-radius: 8px;
-    padding: .75rem 1rem;
-    margin-bottom: 1.5rem;
-    font-size: .9rem;
-    color: var(--accent3);
-  }
-
-  /* ─── Section Title ─── */
-  .section-title {
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: .85rem;
-  }
-
-  /* ─── Card ─── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  /* ─── Info Table ─── */
-  .info-table { width: 100%; border-collapse: collapse; }
-  .info-table tr { border-bottom: 1px solid var(--border); }
-  .info-table tr:last-child { border-bottom: none; }
-  .info-table td { padding: .75rem 0; font-size: .9rem; }
-  .info-table td:first-child { color: var(--muted); width: 110px; }
-  .info-table td:last-child { color: var(--text); font-weight: 600; }
-
-  /* ─── API Key Box ─── */
-  .api-key-wrap {
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: .85rem 1rem;
-    margin: .85rem 0;
-  }
-  .api-key-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent3);
-    box-shadow: 0 0 8px var(--accent3);
-    flex-shrink: 0;
-  }
-  .api-key-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .8rem;
-    color: var(--accent);
-    flex: 1;
-    word-break: break-all;
-    letter-spacing: .03em;
-  }
-  .btn-copy {
-    background: rgba(0,212,255,.1);
-    border: 1px solid rgba(0,212,255,.25);
-    color: var(--accent);
-    border-radius: 7px;
-    padding: .4rem .85rem;
-    font-size: .8rem;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .2s;
-    flex-shrink: 0;
-  }
-  .btn-copy:hover { background: rgba(0,212,255,.2); }
-  .btn-copy.copied { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.4); color: var(--accent3); }
-
-  .btn-regen {
-    background: rgba(239,68,68,.08);
-    border: 1px solid rgba(239,68,68,.25);
-    color: var(--danger);
-    border-radius: 8px;
-    padding: .5rem 1.1rem;
-    font-size: .82rem;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .2s;
-    margin-top: .25rem;
-  }
-  .btn-regen:hover { background: rgba(239,68,68,.15); }
-
-  /* ─── Steps ─── */
-  .steps { display: flex; flex-direction: column; gap: .85rem; margin-top: .5rem; }
-  .step {
-    display: flex; gap: 1rem; align-items: flex-start;
-  }
-  .step-num {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: .75rem; font-weight: 800;
-    flex-shrink: 0;
-    color: #fff;
-  }
-  .step-body h4 { font-size: .9rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
-  .step-body p { font-size: .82rem; color: var(--muted); line-height: 1.5; }
-  .step-body code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .78rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: .15rem .4rem;
-    color: var(--accent);
-  }
-
-  /* ─── Code Tabs ─── */
-  .code-section { margin-top: 1rem; }
-  .tab-bar {
-    display: flex;
-    gap: .4rem;
-    margin-bottom: 0;
-    flex-wrap: wrap;
-  }
-  .tab-btn {
-    display: flex; align-items: center; gap: .4rem;
-    padding: .45rem .9rem;
-    border-radius: 8px 8px 0 0;
-    border: 1px solid var(--border);
-    border-bottom: none;
-    background: var(--surface);
-    color: var(--muted);
-    font-family: 'Syne', sans-serif;
-    font-size: .8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .2s;
-    position: relative;
-    bottom: -1px;
-  }
-  .tab-btn .lang-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-  }
-  .tab-btn.active-c     { background: var(--card); color: var(--c-color);    border-color: var(--c-color);   border-bottom-color: var(--card); }
-  .tab-btn.active-cpp   { background: var(--card); color: var(--cpp-color);  border-color: var(--cpp-color); border-bottom-color: var(--card); }
-  .tab-btn.active-py    { background: var(--card); color: var(--py-color);   border-color: var(--py-color);  border-bottom-color: var(--card); }
-  .tab-btn.active-curl  { background: var(--card); color: var(--curl-color); border-color: var(--curl-color);border-bottom-color: var(--card); }
-
-  .code-panel {
-    display: none;
-    background: var(--card);
-    border-radius: 0 8px 8px 8px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-  }
-  .code-panel.show { display: block; }
-  .code-panel.border-c    { border-color: var(--c-color); }
-  .code-panel.border-cpp  { border-color: var(--cpp-color); }
-  .code-panel.border-py   { border-color: var(--py-color); }
-  .code-panel.border-curl { border-color: var(--curl-color); }
-
-  .code-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .6rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .code-header span { font-size: .75rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-  .btn-copy-code {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-size: .72rem;
-    padding: .25rem .6rem;
-    cursor: pointer;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    transition: all .2s;
-  }
-  .btn-copy-code:hover { color: var(--text); border-color: var(--text); }
-
-  pre {
-    margin: 0;
-    padding: 1.2rem 1.2rem 1.4rem;
-    overflow-x: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .78rem;
-    line-height: 1.7;
-    color: #cdd6f4;
-  }
-
-  /* syntax colors */
-  .kw  { color: #cba6f7; } /* keyword / type */
-  .fn  { color: #89b4fa; } /* function */
-  .str { color: #a6e3a1; } /* string */
-  .num { color: #fab387; } /* number */
-  .cm  { color: #585b70; font-style: italic; } /* comment */
-  .var { color: #cdd6f4; }
-  .inc { color: #f38ba8; } /* include/import */
-  .hd  { color: #f9e2af; } /* header/key */
-
-  /* ─── Troubleshooting ─── */
-  .faq { display: flex; flex-direction: column; gap: .75rem; }
-  .faq-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: border-color .2s;
-  }
-  .faq-item:hover { border-color: rgba(0,212,255,.3); }
-  .faq-q {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .85rem 1rem;
-    font-size: .88rem;
-    font-weight: 700;
-  }
-  .faq-q .icon {
-    width: 22px; height: 22px;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .85rem;
-    flex-shrink: 0;
-  }
-  .faq-q .chevron { color: var(--muted); transition: transform .25s; font-size: .75rem; }
-  .faq-item.open .chevron { transform: rotate(180deg); }
-  .faq-a {
-    display: none;
-    padding: 0 1rem .9rem;
-    font-size: .83rem;
-    color: var(--muted);
-    line-height: 1.6;
-    border-top: 1px solid var(--border);
-    padding-top: .75rem;
-  }
-  .faq-item.open .faq-a { display: block; }
-
-  /* ─── Support Buttons ─── */
-  .support-btns { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
-  .btn-support {
-    display: inline-flex; align-items: center; gap: .4rem;
-    padding: .6rem 1.2rem;
-    border-radius: 8px;
-    font-size: .85rem;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all .2s;
-  }
-  .btn-email {
-    background: rgba(0,212,255,.1);
-    border: 1px solid rgba(0,212,255,.3);
-    color: var(--accent);
-  }
-  .btn-email:hover { background: rgba(0,212,255,.2); }
-  .btn-docs {
-    background: rgba(124,58,237,.1);
-    border: 1px solid rgba(124,58,237,.3);
-    color: #a78bfa;
-  }
-  .btn-docs:hover { background: rgba(124,58,237,.2); }
-
-  /* ─── Grid layout ─── */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  @media(max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
-</style>
-</head>
-<body>
-<div class="page-wrap">
-
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="avatar">{{ request.user.first_name|slice:":1"|upper }}</div>
-    <div>
-      <h1>My Profile</h1>
-      <p>Manage your account and API credentials</p>
-    </div>
-  </div>
-
-  <!-- Flash messages -->
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert">✓ {{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <!-- ══ Personal Information ══ -->
-  <p class="section-title">Personal Information</p>
-  <div class="card">
-    <table class="info-table">
-      <tr>
-        <td>Name</td>
-        <td>{{ request.user.first_name }} {{ request.user.last_name }}</td>
-      </tr>
-      <tr>
-        <td>Email</td>
-        <td>{{ request.user.email }}</td>
-      </tr>
-      <tr>
-        <td>Phone</td>
-        <td>{{ request.user.phone }}</td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- ══ API Key ══ -->
-  <p class="section-title">Your API Key</p>
-  <div class="card">
-    <p style="font-size:.82rem; color:var(--muted); margin-bottom:.75rem;">
-      Keep this key secret. Use it to authenticate your IoT device or script with the API.
-    </p>
-    <div class="api-key-wrap">
-      <div class="api-key-dot"></div>
-      <span class="api-key-value" id="apiKeyVal">{{ request.user.api_key }}</span>
-      <button class="btn-copy" onclick="copyKey(this)">Copy</button>
-    </div>
-    <form method="POST" action="{% url 'regenerate_api_key' %}" style="margin-top:.5rem;">
-      {% csrf_token %}
-      <button type="submit" class="btn-regen">⟳ Regenerate Key</button>
-    </form>
-  </div>
-
-  <!-- ══ How to Use ══ -->
-  <p class="section-title">How to Use Your API Key</p>
-  <div class="card">
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Copy Your API Key</h4>
-          <p>Click the <strong>Copy</strong> button above to copy your unique API key to clipboard. Keep it safe — treat it like a password.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Set Your Variables</h4>
-          <p>In your code, set your <code>API_KEY</code>, the <code>API_URL</code> endpoint, and a <code>FEED_NAME</code> that identifies your data stream.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Send Data</h4>
-          <p>POST a JSON payload with <code>api_key</code>, <code>feed_name</code>, and <code>value</code> to the endpoint. Pick your language below and follow the example.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ Code Examples ══ -->
-  <p class="section-title">Send Data — Code Examples</p>
-  <div class="card">
-    <p style="font-size:.82rem; color:var(--muted); margin-bottom:1rem;">
-      Choose your language or tool. Replace <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">YOUR_API_KEY</code> with the key above.
-    </p>
-
-    <div class="code-section">
-      <div class="tab-bar">
-        <button class="tab-btn active-py" onclick="switchTab('py')" id="tab-py">
-          <span class="lang-dot" style="background:#3b82f6"></span> Python
-        </button>
-        <button class="tab-btn" onclick="switchTab('c')" id="tab-c">
-          <span class="lang-dot" style="background:#5b9bd5"></span> C
-        </button>
-        <button class="tab-btn" onclick="switchTab('cpp')" id="tab-cpp">
-          <span class="lang-dot" style="background:#f97316"></span> C++
-        </button>
-        <button class="tab-btn" onclick="switchTab('curl')" id="tab-curl">
-          <span class="lang-dot" style="background:#10b981"></span> cURL
-        </button>
-      </div>
-
-      <!-- Python -->
-      <div class="code-panel border-py show" id="panel-py">
-        <div class="code-header">
-          <span>send_data.py</span>
-          <button class="btn-copy-code" onclick="copyCode('code-py', this)">Copy</button>
-        </div>
-        <pre id="code-py"><span class="inc">import</span> requests
-<span class="inc">import</span> random
-<span class="inc">import</span> time
-
-<span class="cm"># ── Configuration ────────────────────────────────────────</span>
-<span class="var">API_URL</span>   = <span class="str">"https://dtaiotweb.pythonanywhere.com/api/feed_data"</span>
-<span class="var">API_KEY</span>   = <span class="str">"YOUR_API_KEY"</span>   <span class="cm"># ← paste your key here</span>
-<span class="var">FEED_NAME</span> = <span class="str">"Hi Test"</span>        <span class="cm"># ← name of your data feed</span>
-
-<span class="cm"># ── Main Loop ─────────────────────────────────────────────</span>
-<span class="kw">while</span> <span class="kw">True</span>:
-    value = <span class="fn">round</span>(random.<span class="fn">uniform</span>(<span class="num">20.0</span>, <span class="num">40.0</span>), <span class="num">2</span>)  <span class="cm"># simulate sensor</span>
-
-    payload = {
-        <span class="str">"api_key"</span>:   <span class="var">API_KEY</span>,
-        <span class="str">"feed_name"</span>: <span class="var">FEED_NAME</span>,
-        <span class="str">"value"</span>:     value
+    /* Mobile-First Base Styles */
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
     }
 
-    <span class="kw">try</span>:
-        response = requests.<span class="fn">post</span>(<span class="var">API_URL</span>, json=payload, timeout=<span class="num">5</span>)
-        <span class="fn">print</span>(<span class="str">f"Sent: {value} | Status: {response.status_code}"</span>)
-        <span class="fn">print</span>(<span class="str">"Response:"</span>, response.<span class="fn">json</span>())
-    <span class="kw">except</span> Exception <span class="kw">as</span> e:
-        <span class="fn">print</span>(<span class="str">"Error:"</span>, e)
+    /* Page Title */
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-    time.<span class="fn">sleep</span>(<span class="num">3</span>)  <span class="cm"># send every 3 seconds</span></pre>
-      </div>
+    .page-title::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 2px;
+    }
 
-      <!-- C -->
-      <div class="code-panel border-c" id="panel-c">
-        <div class="code-header">
-          <span>send_data.c &nbsp;—&nbsp; requires libcurl &amp; cjson</span>
-          <button class="btn-copy-code" onclick="copyCode('code-c', this)">Copy</button>
-        </div>
-        <pre id="code-c"><span class="inc">#include</span> &lt;stdio.h&gt;
-<span class="inc">#include</span> &lt;stdlib.h&gt;
-<span class="inc">#include</span> &lt;string.h&gt;
-<span class="inc">#include</span> &lt;unistd.h&gt;
-<span class="inc">#include</span> &lt;curl/curl.h&gt;
+    /* Profile Info Card */
+    .profile-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1rem;
+    }
 
-<span class="cm">/* ── Configuration ──────────────────────────────── */</span>
-<span class="kw">#define</span> <span class="var">API_URL</span>   <span class="str">"https://dtaiotweb.pythonanywhere.com/api/feed_data"</span>
-<span class="kw">#define</span> <span class="var">API_KEY</span>   <span class="str">"YOUR_API_KEY"</span>
-<span class="kw">#define</span> <span class="var">FEED_NAME</span> <span class="str">"Hi Test"</span>
-<span class="kw">#define</span> <span class="var">INTERVAL</span>  <span class="num">3</span>    <span class="cm">/* seconds between sends */</span>
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f3f4f6;
+    }
 
-<span class="cm">/* ── Helper: simulate a sensor reading ─────────── */</span>
-<span class="kw">float</span> <span class="fn">read_sensor</span>() {
-    <span class="kw">return</span> <span class="num">20.0f</span> + (<span class="fn">rand</span>() % <span class="num">2000</span>) / <span class="num">100.0f</span>;
-}
+    .profile-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
 
-<span class="kw">int</span> <span class="fn">main</span>() {
-    <span class="fn">curl_global_init</span>(CURL_GLOBAL_ALL);
-    CURL *curl;
-    CURLcode res;
+    .profile-icon svg {
+        width: 22px;
+        height: 22px;
+        stroke: white;
+    }
 
-    <span class="kw">while</span> (<span class="num">1</span>) {
-        <span class="kw">float</span> value = <span class="fn">read_sensor</span>();
+    .profile-heading {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
 
-        <span class="cm">/* Build JSON payload manually */</span>
-        <span class="kw">char</span> json_body[<span class="num">256</span>];
-        <span class="fn">snprintf</span>(json_body, <span class="kw">sizeof</span>(json_body),
-            <span class="str">"{\"api_key\":\"%s\",\"feed_name\":\"%s\",\"value\":%.2f}"</span>,
-            <span class="var">API_KEY</span>, <span class="var">FEED_NAME</span>, value);
+    .info-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
 
-        curl = <span class="fn">curl_easy_init</span>();
-        <span class="kw">if</span> (curl) {
-            <span class="kw">struct</span> curl_slist *headers = NULL;
-            headers = <span class="fn">curl_slist_append</span>(headers,
-                          <span class="str">"Content-Type: application/json"</span>);
+    .info-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
 
-            <span class="fn">curl_easy_setopt</span>(curl, CURLOPT_URL, <span class="var">API_URL</span>);
-            <span class="fn">curl_easy_setopt</span>(curl, CURLOPT_HTTPHEADER, headers);
-            <span class="fn">curl_easy_setopt</span>(curl, CURLOPT_POSTFIELDS, json_body);
+    .info-row:first-child {
+        padding-top: 0;
+    }
 
-            res = <span class="fn">curl_easy_perform</span>(curl);
-            <span class="kw">if</span> (res != CURLE_OK)
-                <span class="fn">fprintf</span>(stderr, <span class="str">"Error: %s\n"</span>,
-                        <span class="fn">curl_easy_strerror</span>(res));
-            <span class="kw">else</span>
-                <span class="fn">printf</span>(<span class="str">"Sent: %.2f\n"</span>, value);
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-            <span class="fn">curl_slist_free_all</span>(headers);
-            <span class="fn">curl_easy_cleanup</span>(curl);
+    .info-value {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #1f2937;
+        word-break: break-word;
+    }
+
+    /* API Key Section */
+    .api-section {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1rem;
+    }
+
+    .api-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .api-title svg {
+        width: 18px;
+        height: 18px;
+        stroke: #10b981;
+        flex-shrink: 0;
+    }
+
+    .api-key-container {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.875rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .api-key-text {
+        font-family: 'Courier New', monospace;
+        font-size: 0.8rem;
+        color: #1f2937;
+        word-break: break-all;
+        line-height: 1.5;
+    }
+
+    .copy-button {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+    .copy-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .copy-button:active {
+        transform: translateY(0);
+    }
+
+    .copy-button svg {
+        width: 16px;
+        height: 16px;
+        stroke: white;
+        fill: none;
+        flex-shrink: 0;
+    }
+
+    .copy-button.copied {
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+
+    /* Regenerate Button */
+    .regenerate-form {
+        display: flex;
+        width: 100%;
+    }
+
+    .regenerate-button {
+        background: transparent;
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        width: 100%;
+    }
+
+    .regenerate-button:hover {
+        background: #ef4444;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .regenerate-button svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        flex-shrink: 0;
+    }
+
+    /* Success Message */
+    .message-container {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        border: 1px solid #10b981;
+        border-radius: 10px;
+        padding: 0.875rem 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
         }
-        <span class="fn">sleep</span>(<span class="var">INTERVAL</span>);
-    }
-    <span class="fn">curl_global_cleanup</span>();
-    <span class="kw">return</span> <span class="num">0</span>;
-}
-
-<span class="cm">/* Compile: gcc send_data.c -o send_data -lcurl */</span></pre>
-      </div>
-
-      <!-- C++ -->
-      <div class="code-panel border-cpp" id="panel-cpp">
-        <div class="code-header">
-          <span>send_data.cpp &nbsp;—&nbsp; requires libcurl (C++17)</span>
-          <button class="btn-copy-code" onclick="copyCode('code-cpp', this)">Copy</button>
-        </div>
-        <pre id="code-cpp"><span class="inc">#include</span> &lt;iostream&gt;
-<span class="inc">#include</span> &lt;string&gt;
-<span class="inc">#include</span> &lt;thread&gt;
-<span class="inc">#include</span> &lt;chrono&gt;
-<span class="inc">#include</span> &lt;cstdlib&gt;
-<span class="inc">#include</span> &lt;curl/curl.h&gt;
-
-<span class="cm">// ── Configuration ─────────────────────────────────────────</span>
-<span class="kw">const</span> std::<span class="kw">string</span> <span class="var">API_URL</span>   = <span class="str">"https://dtaiotweb.pythonanywhere.com/api/feed_data"</span>;
-<span class="kw">const</span> std::<span class="kw">string</span> <span class="var">API_KEY</span>   = <span class="str">"YOUR_API_KEY"</span>;   <span class="cm">// ← paste key</span>
-<span class="kw">const</span> std::<span class="kw">string</span> <span class="var">FEED_NAME</span> = <span class="str">"Hi Test"</span>;
-
-<span class="cm">// ── Simulate sensor ───────────────────────────────────────</span>
-<span class="kw">float</span> <span class="fn">readSensor</span>() {
-    <span class="kw">return</span> <span class="num">20.0f</span> + (<span class="fn">rand</span>() % <span class="num">2000</span>) / <span class="num">100.0f</span>;
-}
-
-<span class="cm">// ── Send one reading ──────────────────────────────────────</span>
-<span class="kw">void</span> <span class="fn">sendData</span>(<span class="kw">float</span> value) {
-    CURL *curl = <span class="fn">curl_easy_init</span>();
-    <span class="kw">if</span> (!curl) <span class="kw">return</span>;
-
-    <span class="cm">// Build JSON</span>
-    std::<span class="kw">string</span> body = <span class="str">"{"</span>
-        <span class="str">"\"api_key\":\""</span>   + <span class="var">API_KEY</span>   + <span class="str">"\","</span>
-        <span class="str">"\"feed_name\":\"" </span>+ <span class="var">FEED_NAME</span> + <span class="str">"\","</span>
-        <span class="str">"\"value\":"</span>      + std::<span class="fn">to_string</span>(value) +
-        <span class="str">"}"</span>;
-
-    <span class="kw">struct</span> curl_slist *headers = <span class="kw">nullptr</span>;
-    headers = <span class="fn">curl_slist_append</span>(headers, <span class="str">"Content-Type: application/json"</span>);
-
-    <span class="fn">curl_easy_setopt</span>(curl, CURLOPT_URL,        <span class="var">API_URL</span>.c_str());
-    <span class="fn">curl_easy_setopt</span>(curl, CURLOPT_HTTPHEADER,  headers);
-    <span class="fn">curl_easy_setopt</span>(curl, CURLOPT_POSTFIELDS,  body.c_str());
-
-    CURLcode res = <span class="fn">curl_easy_perform</span>(curl);
-    <span class="kw">if</span> (res != CURLE_OK)
-        std::cerr &lt;&lt; <span class="str">"Error: "</span> &lt;&lt; <span class="fn">curl_easy_strerror</span>(res) &lt;&lt; <span class="str">"\n"</span>;
-    <span class="kw">else</span>
-        std::cout &lt;&lt; <span class="str">"Sent: "</span> &lt;&lt; value &lt;&lt; <span class="str">"\n"</span>;
-
-    <span class="fn">curl_slist_free_all</span>(headers);
-    <span class="fn">curl_easy_cleanup</span>(curl);
-}
-
-<span class="kw">int</span> <span class="fn">main</span>() {
-    <span class="fn">curl_global_init</span>(CURL_GLOBAL_ALL);
-
-    <span class="kw">while</span> (<span class="kw">true</span>) {
-        <span class="fn">sendData</span>(<span class="fn">readSensor</span>());
-        std::this_thread::<span class="fn">sleep_for</span>(std::chrono::<span class="fn">seconds</span>(<span class="num">3</span>));
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    <span class="fn">curl_global_cleanup</span>();
-    <span class="kw">return</span> <span class="num">0</span>;
-}
+    .message-container svg {
+        width: 18px;
+        height: 18px;
+        stroke: #059669;
+        flex-shrink: 0;
+    }
 
-<span class="cm">// Compile: g++ -std=c++17 send_data.cpp -o send_data -lcurl</span></pre>
-      </div>
+    .message-text {
+        color: #059669;
+        font-weight: 500;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
 
-      <!-- cURL -->
-      <div class="code-panel border-curl" id="panel-curl">
-        <div class="code-header">
-          <span>terminal (one-shot POST)</span>
-          <button class="btn-copy-code" onclick="copyCode('code-curl', this)">Copy</button>
+    /* Help & Support Section */
+    .help-section {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1rem;
+    }
+
+    .section-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-header svg {
+        width: 20px;
+        height: 20px;
+        stroke: #10b981;
+        flex-shrink: 0;
+    }
+
+    /* Help Cards */
+    .help-card {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .help-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .help-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.875rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .help-card-header svg {
+        width: 18px;
+        height: 18px;
+        stroke: #10b981;
+        flex-shrink: 0;
+    }
+
+    .help-card-header h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .help-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* Help Steps */
+    .help-step {
+        display: flex;
+        gap: 0.875rem;
+        align-items: flex-start;
+    }
+
+    .step-number {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .step-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .step-content h5 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .step-content p {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin: 0 0 0.75rem 0;
+        line-height: 1.6;
+    }
+
+    /* Code Block */
+    .code-block {
+        background: #1f2937;
+        border-radius: 8px;
+        padding: 0.875rem;
+        margin-top: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .code-block code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #10b981;
+        white-space: pre;
+        display: block;
+        line-height: 1.5;
+    }
+
+    /* FAQ Items */
+    .faq-item {
+        padding: 0.875rem;
+        background: white;
+        border-radius: 8px;
+        border-left: 3px solid #10b981;
+        margin-bottom: 0.75rem;
+    }
+
+    .faq-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .faq-question {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .faq-question svg {
+        width: 14px;
+        height: 14px;
+        stroke: #10b981;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .faq-question strong {
+        color: #1f2937;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .faq-answer {
+        font-size: 0.8rem;
+        color: #6b7280;
+        line-height: 1.6;
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+
+    /* Support Card */
+    .support-card {
+        background: linear-gradient(135deg, #f0fdf4, #d1fae5);
+        border: 1px solid #10b981;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-top: 1rem;
+    }
+
+    .support-content {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .support-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .support-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke: #10b981;
+    }
+
+    .support-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .support-text h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .support-text p {
+        font-size: 0.85rem;
+        color: #059669;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .support-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .support-button {
+        padding: 0.875rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .support-button svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        flex-shrink: 0;
+    }
+
+    .support-button.primary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .support-button.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .support-button.secondary {
+        background: white;
+        color: #10b981;
+        border: 2px solid #10b981;
+    }
+
+    .support-button.secondary:hover {
+        background: #f0fdf4;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.15);
+    }
+
+    /* ============================================
+       TABLET STYLES (min-width: 600px)
+       ============================================ */
+    @media (min-width: 600px) {
+        .profile-container {
+            padding: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .page-title::before {
+            height: 28px;
+        }
+
+        .profile-card,
+        .api-section,
+        .help-section {
+            padding: 1.75rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-icon {
+            width: 44px;
+            height: 44px;
+        }
+
+        .profile-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .profile-heading {
+            font-size: 1.15rem;
+        }
+
+        .help-card {
+            padding: 1.5rem;
+        }
+
+        .api-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .api-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .api-key-container {
+            flex-direction: row;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .api-key-text {
+            font-size: 0.875rem;
+            flex: 1;
+        }
+
+        .copy-button {
+            width: auto;
+            min-width: 120px;
+        }
+
+        .regenerate-button {
+            font-size: 0.85rem;
+            padding: 0.65rem 1.25rem;
+        }
+
+        .regenerate-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .section-header {
+            font-size: 1.25rem;
+        }
+
+        .section-header svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+        }
+
+        .step-content h5 {
+            font-size: 1rem;
+        }
+
+        .step-content p {
+            font-size: 0.9rem;
+        }
+
+        .code-block code {
+            font-size: 0.8rem;
+        }
+
+        .support-icon {
+            width: 48px;
+            height: 48px;
+        }
+
+        .support-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .support-text h4 {
+            font-size: 1.1rem;
+        }
+
+        .support-text p {
+            font-size: 0.9rem;
+        }
+
+        .support-actions {
+            flex-direction: row;
+        }
+
+        .support-button {
+            font-size: 0.95rem;
+        }
+
+        .support-card {
+            padding: 1.75rem;
+        }
+    }
+
+    /* ============================================
+       DESKTOP STYLES (min-width: 1024px)
+       ============================================ */
+    @media (min-width: 1024px) {
+        .profile-container {
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+
+        .profile-card,
+        .api-section,
+        .help-section {
+            padding: 2rem;
+            border-radius: 16px;
+        }
+
+        .help-card {
+            padding: 1.5rem;
+        }
+
+        .api-key-container {
+            border-radius: 12px;
+        }
+
+        .support-card {
+            padding: 2rem;
+        }
+    }
+
+    /* ============================================
+       EXTRA SMALL DEVICES (max-width: 360px)
+       ============================================ */
+    @media (max-width: 360px) {
+        .profile-container {
+            padding: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+        }
+
+        .page-title::before {
+            height: 20px;
+        }
+
+        .profile-card,
+        .api-section,
+        .help-section {
+            padding: 1rem;
+        }
+
+        .profile-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .profile-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .profile-heading {
+            font-size: 1rem;
+        }
+
+        .help-card {
+            padding: 1rem;
+        }
+
+        .api-key-text {
+            font-size: 0.7rem;
+        }
+
+        .copy-button,
+        .regenerate-button {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.75rem;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            font-size: 0.75rem;
+        }
+
+        .code-block code {
+            font-size: 0.7rem;
+        }
+
+        .support-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .support-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    /* ============================================
+       LANDSCAPE ORIENTATION (for phones)
+       ============================================ */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .profile-container {
+            padding: 1rem;
+        }
+
+        .page-title {
+            margin-bottom: 1rem;
+        }
+
+        .profile-card,
+        .api-section,
+        .help-section {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+       ============================================ */
+    @media print {
+        .copy-button,
+        .regenerate-button,
+        .support-actions {
+            display: none;
+        }
+
+        .profile-container {
+            max-width: 100%;
+        }
+
+        .profile-card,
+        .api-section,
+        .help-section {
+            box-shadow: none;
+            border: 1px solid #e5e7eb;
+            page-break-inside: avoid;
+        }
+    }
+
+    /* ============================================
+       ACCESSIBILITY ENHANCEMENTS
+       ============================================ */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* Focus states for keyboard navigation */
+    .copy-button:focus,
+    .regenerate-button:focus,
+    .support-button:focus {
+        outline: 3px solid #10b981;
+        outline-offset: 2px;
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .profile-card,
+        .api-section,
+        .help-section {
+            border: 2px solid #1f2937;
+        }
+
+        .copy-button,
+        .regenerate-button {
+            border: 2px solid currentColor;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <h1 class="page-title">Profile</h1>
+
+    <!-- Success Messages -->
+    {% if messages %}
+        {% for message in messages %}
+        <div class="message-container">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span class="message-text">{{ message }}</span>
         </div>
-        <pre id="code-curl"><span class="cm"># Quick one-shot test — run this in your terminal</span>
+        {% endfor %}
+    {% endif %}
 
-<span class="fn">curl</span> -X POST <span class="str">https://dtaiotweb.pythonanywhere.com/api/feed_data</span> \
-     -H <span class="str">"Content-Type: application/json"</span> \
-     -d <span class="str">'{
-           "api_key":   "YOUR_API_KEY",
-           "feed_name": "Hi Test",
-           "value":     25.50
-         }'</span>
+    <!-- Profile Information Card -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <h2 class="profile-heading">Personal Information</h2>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Name</span>
+            <span class="info-value">{{ request.user.first_name }}</span>
+        </div>
 
-<span class="cm"># Expected response:</span>
-<span class="cm"># {"status": "ok", "feed": "Hi Test", "value": 25.5}</span>
+        <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ request.user.email }}</span>
+        </div>
 
-<span class="cm"># ── Loop every 3 seconds (Linux / macOS) ────────────</span>
-<span class="kw">while</span> true; <span class="kw">do</span>
-  VALUE=$(<span class="fn">python3</span> -c <span class="str">"import random; print(round(random.uniform(20,40),2))"</span>)
-  <span class="fn">curl</span> -s -X POST <span class="str">https://dtaiotweb.pythonanywhere.com/api/feed_data</span> \
-       -H <span class="str">"Content-Type: application/json"</span> \
-       -d <span class="str">"{\"api_key\":\"YOUR_API_KEY\",\"feed_name\":\"Hi Test\",\"value\":$VALUE}"</span>
-  <span class="fn">echo</span> <span class="str">" Sent: $VALUE"</span>
-  <span class="fn">sleep</span> <span class="num">3</span>
-<span class="kw">done</span></pre>
-      </div>
-    </div><!-- /code-section -->
-  </div>
-
-  <!-- ══ Troubleshooting ══ -->
-  <p class="section-title">Troubleshooting</p>
-  <div class="card">
-    <div class="faq">
-
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          <span>🔑 &nbsp; API Key Not Working?</span>
-          <span class="chevron">▼</span>
+        <div class="info-row">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ request.user.phone }}</span>
         </div>
-        <div class="faq-a">
-          Make sure you copied the <em>entire</em> key without any extra spaces. In your code, the key must go in the <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">api_key</code> field of the JSON body. If the problem persists, try <strong>Regenerating</strong> your key from the profile page.
-        </div>
-      </div>
-
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          <span>🚫 &nbsp; Getting 401 Unauthorized?</span>
-          <span class="chevron">▼</span>
-        </div>
-        <div class="faq-a">
-          A 401 means the server couldn't validate your key. Double-check that the JSON field name is exactly <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">"api_key"</code> (lowercase, with underscore). Also confirm you are POSTing to the correct endpoint and that the <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">Content-Type: application/json</code> header is set.
-        </div>
-      </div>
-
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          <span>⏱ &nbsp; Rate Limit Exceeded?</span>
-          <span class="chevron">▼</span>
-        </div>
-        <div class="faq-a">
-          You've sent too many requests in a short window. The default interval in the example scripts is 3 seconds — try increasing the <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">sleep</code> value. If you need higher throughput, contact support to discuss plan options.
-        </div>
-      </div>
-
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          <span>🔧 &nbsp; libcurl Not Found (C / C++)?</span>
-          <span class="chevron">▼</span>
-        </div>
-        <div class="faq-a">
-          Install libcurl development headers:<br>
-          <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">sudo apt install libcurl4-openssl-dev</code> (Debian/Ubuntu) or
-          <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">brew install curl</code> (macOS). Then compile with <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">-lcurl</code> as shown in the example comments.
-        </div>
-      </div>
-
-      <div class="faq-item" onclick="toggleFaq(this)">
-        <div class="faq-q">
-          <span>📦 &nbsp; requests Module Not Found (Python)?</span>
-          <span class="chevron">▼</span>
-        </div>
-        <div class="faq-a">
-          Install it with pip: <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">pip install requests</code>. For embedded Python (e.g., Raspberry Pi), you may need <code style="font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.78rem;">pip3 install requests</code>.
-        </div>
-      </div>
-
     </div>
-  </div>
 
-  <!-- ══ Need More Help ══ -->
-  <p class="section-title">Need More Help?</p>
-  <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
-    <div>
-      <p style="font-weight:700; color:#fff; margin-bottom:.25rem;">Our support team is here for you</p>
-      <p style="font-size:.82rem; color:var(--muted);">Reach out any time — we usually respond within a few hours.</p>
-    </div>
-    <div class="support-btns" style="margin-top:0;">
-      <a href="mailto:support@dtaiotweb.com" class="btn-support btn-email">✉ Email Support</a>
-      <a href="#" class="btn-support btn-docs">📖 View Documentation</a>
-    </div>
-  </div>
+    <!-- API Key Section -->
+    <div class="api-section">
+        <h3 class="api-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </svg>
+            Your API Key
+        </h3>
 
-</div><!-- /page-wrap -->
+        <div class="api-key-container">
+            <span class="api-key-text" id="apiKey">{{ request.user.api_key }}</span>
+            <button class="copy-button" onclick="copyApiKey()" aria-label="Copy API key to clipboard">
+                <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copyText">Copy</span>
+            </button>
+        </div>
+
+        <form action="{% url 'regenerate_api' %}" method="POST" class="regenerate-form">
+            {% csrf_token %}
+            <button type="submit" class="regenerate-button" aria-label="Regenerate your API key">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Regenerate
+            </button>
+        </form>
+    </div>
+
+    <!-- Help & Support Section -->
+    <div class="help-section">
+        <h3 class="section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Help & Support
+        </h3>
+
+        <!-- How to Use API -->
+        <div class="help-card">
+            <div class="help-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <h4>How to Use Your API Key</h4>
+            </div>
+            <div class="help-content">
+                <div class="help-step">
+                    <span class="step-number">1</span>
+                    <div class="step-content">
+                        <h5>Copy Your API Key</h5>
+                        <p>Click the "Copy" button above to copy your unique API key to clipboard.</p>
+                    </div>
+                </div>
+
+                <div class="help-step">
+                    <span class="step-number">2</span>
+                    <div class="step-content">
+                        <h5>Include in API Requests</h5>
+                        <p>Add your API key in the request header:</p>
+                        <div class="code-block">
+                            <code>Authorization: Bearer YOUR_API_KEY</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-step">
+                    <span class="step-number">3</span>
+                    <div class="step-content">
+                        <h5>Example Request</h5>
+                        <div class="code-block">
+<code>curl -X GET https://api.yourapp.com/data \
+  -H "Authorization: Bearer YOUR_API_KEY"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="help-card">
+            <div class="help-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                </svg>
+                <h4>Troubleshooting</h4>
+            </div>
+            <div class="help-content">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <strong>API Key Not Working?</strong>
+                    </div>
+                    <p class="faq-answer">Make sure you're using the correct format in the Authorization header and that your API key hasn't expired. Try regenerating your key if issues persist.</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <strong>Getting 401 Unauthorized Error?</strong>
+                    </div>
+                    <p class="faq-answer">This usually means your API key is missing or invalid. Double-check that you've copied the entire key and included it in the Authorization header.</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <strong>Rate Limit Exceeded?</strong>
+                    </div>
+                    <p class="faq-answer">You've made too many requests in a short time. Wait a few minutes before trying again or upgrade your plan for higher limits.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="support-card">
+            <div class="support-content">
+                <div class="support-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <div class="support-text">
+                    <h4>Need More Help?</h4>
+                    <p>Our support team is here to help you with any questions or issues.</p>
+                </div>
+            </div>
+            <div class="support-actions">
+                <a href="mailto:support@yourapp.com" class="support-button primary" aria-label="Contact support via email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    Email Support
+                </a>
+                <a href="#" class="support-button secondary" aria-label="View API documentation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    View Documentation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-/* ── Tab switching ─────────────────────────────────────── */
-const langs = ['py', 'c', 'cpp', 'curl'];
-
-function switchTab(lang) {
-  langs.forEach(l => {
-    document.getElementById('panel-' + l).classList.remove('show');
-    const btn = document.getElementById('tab-' + l);
-    btn.className = 'tab-btn'; // reset
-  });
-  document.getElementById('panel-' + lang).classList.add('show');
-  document.getElementById('tab-' + lang).classList.add('active-' + lang);
-}
-
-/* ── Copy API Key ──────────────────────────────────────── */
-function copyKey(btn) {
-  const val = document.getElementById('apiKeyVal').innerText;
-  navigator.clipboard.writeText(val).then(() => {
-    btn.textContent = '✓ Copied';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-  });
-}
-
-/* ── Copy code block ───────────────────────────────────── */
-function copyCode(id, btn) {
-  const raw = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(raw).then(() => {
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-  });
-}
-
-/* ── FAQ accordion ─────────────────────────────────────── */
-function toggleFaq(el) {
-  el.classList.toggle('open');
-}
+    function copyApiKey() {
+        const apiKey = document.getElementById('apiKey').textContent;
+        const copyButton = document.querySelector('.copy-button');
+        const copyText = document.getElementById('copyText');
+        const copyIcon = document.getElementById('copyIcon');
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(apiKey).then(() => {
+            // Change button appearance
+            copyButton.classList.add('copied');
+            copyText.textContent = 'Copied!';
+            
+            // Change icon to checkmark
+            copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                copyButton.classList.remove('copied');
+                copyText.textContent = 'Copy';
+                copyIcon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = apiKey;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                copyButton.classList.add('copied');
+                copyText.textContent = 'Copied!';
+                copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+                setTimeout(() => {
+                    copyButton.classList.remove('copied');
+                    copyText.textContent = 'Copy';
+                    copyIcon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+                }, 2000);
+            } catch (err) {
+                console.error('Fallback copy failed: ', err);
+            }
+            document.body.removeChild(textArea);
+        });
+    }
 </script>
-</body>
-</html>
 
 {% endblock %}
