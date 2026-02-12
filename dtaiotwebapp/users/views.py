@@ -1,14 +1,45 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import CustomUser
+import re
+import html
 
 def signup(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        # Get and sanitize inputs
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        phone = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        # Validation: Check if fields are empty
+        if not all([name, email, phone, password, confirm_password]):
+            messages.error(request, 'All fields are required')
+            return redirect('signup')
+
+        # Sanitize name - remove any HTML/script tags
+        name = html.escape(name)
+        # Allow only letters and spaces in name
+        if not re.match(r'^[a-zA-Z\s]{2,50}$', name):
+            messages.error(request, 'Name must contain only letters and be 2-50 characters')
+            return redirect('signup')
+
+        # Validate email format
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            messages.error(request, 'Invalid email format')
+            return redirect('signup')
+
+        # Sanitize and validate phone - remove any non-numeric characters except + and -
+        phone = re.sub(r'[^\d+\-\s()]', '', phone)
+        if len(phone) < 10:
+            messages.error(request, 'Phone number must be at least 10 digits')
+            return redirect('signup')
+
+        # Check password strength
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters')
+            return redirect('signup')
 
         if password != confirm_password:
             messages.error(request, 'Passwords do not match')
@@ -18,10 +49,11 @@ def signup(request):
             messages.error(request, 'Email already registered')
             return redirect('signup')
 
+        # Create user with sanitized data
         user = CustomUser(
-            username=email,          # IMPORTANT (internal)
+            username=email,
             email=email,
-            first_name=name,          # Name stored here
+            first_name=name,
             phone=phone
         )
         user.set_password(password)
