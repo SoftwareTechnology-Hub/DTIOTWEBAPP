@@ -269,13 +269,24 @@ def Feed_data(request):
     return JsonResponse({"message": "Data saved (latest 5 only)"})
 @login_required
 def feed_data_json(request, slug):
+    from django.utils import timezone
+    import pytz
+    
     feed = get_object_or_404(Custom_Feed, slug=slug, user=request.user)
-
     data = FeedData.objects.filter(feed=feed).order_by('created_at')
-
+    
+    # Convert to IST (Indian Standard Time)
+    ist = pytz.timezone('Asia/Kolkata')
+    
+    labels = []
+    for d in data:
+        # Convert UTC to IST
+        ist_time = d.created_at.astimezone(ist)
+        labels.append(ist_time.strftime("%H:%M:%S"))
+    
     return JsonResponse({
         "values": [d.value for d in data],
-        "labels": [d.created_at.strftime("%H:%M:%S") for d in data]
+        "labels": labels
     })
 # dashboard/views.py
 from .models import DashboardWidget
