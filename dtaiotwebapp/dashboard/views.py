@@ -217,12 +217,17 @@ import json
 from users.models import CustomUser
 from .models import Custom_Feed, FeedData
 
+import logging
+logger = logging.getLogger(__name__)
+
 def get_api_key(request):
     try:
         data = json.loads(request.body)
         return data.get("api_key", "")
-    except Exception:
+    except Exception as e:
+        logger.error(f"get_api_key failed: {e}")
         return ""
+
 
 
 @csrf_exempt
