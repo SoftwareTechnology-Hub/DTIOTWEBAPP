@@ -666,6 +666,9 @@ function loadData() {
             chart.data.labels = data.labels;
             chart.data.datasets[0].data = data.values;
             chart.update();
+            
+            // Update statistics cards
+            updateStats(data);
         });
 }
 // Auto update every 2 seconds
