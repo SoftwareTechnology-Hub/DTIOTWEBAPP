@@ -1,4 +1,5 @@
 from django.http import HttpResponseForbidden
+from django.shortcuts import render
 
 class AppOnlyAccessMiddleware:
     def __init__(self, get_response):
@@ -26,5 +27,5 @@ class AppOnlyAccessMiddleware:
         if "wv" in ua or "android" in ua:
             return self.get_response(request)
 
-        # Otherwise block
-        return HttpResponseForbidden("App access only")
+        # Otherwise block - show 403 error page
+        return render(request, '403.html', status=403)
