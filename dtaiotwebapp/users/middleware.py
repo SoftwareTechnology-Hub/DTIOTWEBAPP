@@ -27,7 +27,7 @@ class AppOnlyAccessMiddleware:
         if "wv" in ua or "android" in ua:
             return self.get_response(request)
         
-        # return HttpResponseForbidden("App access only")
+        #return HttpResponseForbidden("App access only")
 
         # Otherwise block - show 403 error page
         return render(request, '403.html', status=403)

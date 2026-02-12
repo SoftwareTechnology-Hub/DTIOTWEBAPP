@@ -244,14 +244,17 @@ def Feed_data(request):
     # except Custom_Feed.DoesNotExist:
     #     return JsonResponse({"error": "Feed not found"}, status=404)
 
-    user = get_object_or_404(CustomUser, api_key=api_key)
+    try:
+        user = CustomUser.objects.get(api_key=api_key)
+    except CustomUser.DoesNotExist:
+        return JsonResponse({"error": "Invalid API key"}, status=403)
 
     # ✅ FEED MATCH BY TITLE (industry standard)
-    feed = get_object_or_404(
-        Custom_Feed,
-        user=user,
-        title__iexact=feed_name
-    )
+    try:
+        feed = Custom_Feed.objects.get(user=user, title__iexact=feed_name)
+    except Custom_Feed.DoesNotExist:
+        return JsonResponse({"error": "Feed not found"}, status=404)
+
 
 
     # save data
