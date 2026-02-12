@@ -255,6 +255,8 @@ def Feed_data(request):
     except Custom_Feed.DoesNotExist:
         return JsonResponse({"error": "Feed not found"}, status=404)
 
+    if value is None:
+        return JsonResponse({"error": "Value required"}, status=400)
 
 
     # save data
@@ -374,7 +376,8 @@ def dashboard_data(request):
         )
     except DashboardWidget.DoesNotExist:
         return JsonResponse({"error": "Widget not found"}, status=404)
-
+    if value is None:
+        return JsonResponse({"error": "Value required"}, status=400)
 
     WidgetData.objects.create(widget=widget, value=value)
 
