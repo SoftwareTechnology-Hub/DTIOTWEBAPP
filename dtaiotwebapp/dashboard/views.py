@@ -246,14 +246,15 @@ def Feed_data(request):
 
     try:
         user = CustomUser.objects.get(api_key=api_key)
-    except CustomUser.DoesNotExist:
-        return JsonResponse({"error": "Invalid API key"}, status=403)
+        feed = Custom_Feed.objects.get(user=user, title__iexact=feed_name)
+    except (CustomUser.DoesNotExist, Custom_Feed.DoesNotExist):
+        return JsonResponse({"error": "Authentication failed"}, status=401)
 
     # ✅ FEED MATCH BY TITLE (industry standard)
-    try:
-        feed = Custom_Feed.objects.get(user=user, title__iexact=feed_name)
-    except Custom_Feed.DoesNotExist:
-        return JsonResponse({"error": "Feed not found"}, status=404)
+    # try:
+    #     feed = Custom_Feed.objects.get(user=user, title__iexact=feed_name)
+    # except Custom_Feed.DoesNotExist:
+    #     return JsonResponse({"error": "Feed not found"}, status=404)
 
     if value is None:
         return JsonResponse({"error": "Value required"}, status=400)
@@ -271,7 +272,7 @@ def Feed_data(request):
     )
     FeedData.objects.filter(id__in=list(old_ids)).delete()
 
-    return JsonResponse({"message": "Data saved (latest 5 only)"})
+    return JsonResponse({"message": "Data saved"})
 @login_required
 def feed_data_json(request, slug):
     feed = get_object_or_404(Custom_Feed, slug=slug, user=request.user)
@@ -356,26 +357,44 @@ def dashboard_data(request):
     # USER
     try:
         user = CustomUser.objects.get(api_key=api_key)
-    except CustomUser.DoesNotExist:
-        return JsonResponse({"error": "Invalid API key"}, status=403)
 
-    # DASHBOARD
-    try:
         dashboard = Custom_Dashboard.objects.get(
             user=user,
             title__iexact=dashboard_name
         )
-    except Custom_Dashboard.DoesNotExist:
-        return JsonResponse({"error": "Dashboard not found"}, status=404)
 
-    # WIDGET
-    try:
         widget = DashboardWidget.objects.get(
             dashboard=dashboard,
             name__iexact=widget_name
         )
-    except DashboardWidget.DoesNotExist:
-        return JsonResponse({"error": "Widget not found"}, status=404)
+    except (CustomUser.DoesNotExist,
+        Custom_Dashboard.DoesNotExist,
+        DashboardWidget.DoesNotExist):
+        return JsonResponse({"error": "Authentication failed"}, status=401)
+
+    # DASHBOARD
+    # try:
+    #     dashboard = Custom_Dashboard.objects.get(
+    #         user=user,
+    #         title__iexact=dashboard_name
+    #     )
+
+    #     widget = DashboardWidget.objects.get(
+    #         dashboard=dashboard,
+    #         name__iexact=widget_name
+    #     )
+    # except Custom_Dashboard.DoesNotExist:
+    #     return JsonResponse({"error": "Authentication failed"}, status=401)
+
+    # # WIDGET
+    # try:
+    #     widget = DashboardWidget.objects.get(
+    #         dashboard=dashboard,
+    #         name__iexact=widget_name
+    #     )
+    # except DashboardWidget.DoesNotExist:
+    #     return JsonResponse({"error": "Widget not found"}, status=404)
+    
     if value is None:
         return JsonResponse({"error": "Value required"}, status=400)
 
@@ -389,9 +408,6 @@ def dashboard_data(request):
     )
     WidgetData.objects.filter(id__in=list(old_ids)).delete()
 
-    return JsonResponse({"status": "success",
-    "dashboard": dashboard.title,
-    "widget": widget.name,
-    "value": value})
+    return JsonResponse({"status": "success"})
 
     
