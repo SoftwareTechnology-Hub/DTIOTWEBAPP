@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# Custom error page handlers (works when DEBUG=False)
+# To test error pages in development, temporarily set DEBUG=False
+# IMPORTANT: Never deploy with DEBUG=True in production!
+
 
 # Application definition
 
