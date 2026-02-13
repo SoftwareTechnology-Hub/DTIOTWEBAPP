@@ -318,33 +318,31 @@
                     <button class="btn-copy-code" onclick="copyLangCode('lcode-py',this)">Copy</button>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-py">import requests   # library that lets Python make HTTP requests
-import random      # used to generate a fake sensor value
-import time        # used to pause between sends
+<code id="lcode-py">import requests
+import random
+import time
 
-API_URL   = "https://dtaiotweb.pythonanywhere.com/api/feed_data"
-API_KEY   = "YOUR_API_KEY"
-FEED_NAME = "Hi Test"
+API_URL = "https://dtaiotweb.pythonanywhere.com/api/feed_data"
+
+API_KEY = "2fa9028412ad3d3fa8bb4a81a7dc4cd6c04d6a74f159ca61fe137ded0b01894b"
+FEED_NAME = "name"
 
 while True:
-    value = round(random.uniform(20.0, 40.0), 2)
+    value = round(random.uniform(20.0, 40.0), 2)  # random sensor value
+
     payload = {
-        "api_key":   API_KEY,
+        "api_key": API_KEY,
         "feed_name": FEED_NAME,
-        "value":     value
+        "value": value
     }
 
-    response = requests.post(API_URL, json=payload, timeout=5)
-    if response.status_code == 403:
-        print("Rate limit exceeded — slow down!")
-    elif response.status_code == 401:
-        print("Authentication failed — check your API key")
-    elif response.status_code == 400:
-        print("Bad request:", response.json())
-    else:
-        print("Sent:", value, "| Response:", response.json())
+    try:
+        response = requests.post(API_URL, json=payload, timeout=5)
+        print("Sent:", payload, "| Response:", response.json())
+    except Exception as e:
+        print("Error:", e)
 
-    time.sleep(3)</code>
+    time.sleep(3)  # send every 3 seconds</code>
                 </div>
             </div>
 
@@ -364,7 +362,7 @@ while True:
 
 #define API_URL   "https://dtaiotweb.pythonanywhere.com/api/feed_data"
 #define API_KEY   "YOUR_API_KEY"
-#define FEED_NAME "Hi Test"
+#define FEED_NAME "name"
 #define INTERVAL  3
 
 float read_sensor() {
@@ -423,7 +421,7 @@ int main() {
 
 const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data";
 const std::string API_KEY   = "YOUR_API_KEY";
-const std::string FEED_NAME = "Hi Test";
+const std::string FEED_NAME = "name";
 
 float readSensor() {
     return 20.0f + (rand() % 2000) / 100.0f;
@@ -474,14 +472,14 @@ int main() {
 <code id="lcode-curl"># One-shot test
 curl -X POST https://dtaiotweb.pythonanywhere.com/api/feed_data \
      -H "Content-Type: application/json" \
-     -d '{"api_key":"YOUR_API_KEY","feed_name":"Hi Test","value":25.50}'
+     -d '{"api_key":"YOUR_API_KEY","feed_name":"name","value":25.50}'
 
 # Loop every 3 seconds (Linux / macOS)
 while true; do
   VALUE=$(python3 -c "import random; print(round(random.uniform(20,40),2))")
   curl -s -X POST https://dtaiotweb.pythonanywhere.com/api/feed_data \
        -H "Content-Type: application/json" \
-       -d "{\"api_key\":\"YOUR_API_KEY\",\"feed_name\":\"Hi Test\",\"value\":$VALUE}"
+       -d "{\"api_key\":\"YOUR_API_KEY\",\"feed_name\":\"name\",\"value\":$VALUE}"
   echo "Sent: $VALUE"
   sleep 3
 done</code>
@@ -514,8 +512,8 @@ import random
 URL = "https://dtaiotweb.pythonanywhere.com/api/data"
 
 API_KEY = "2fa9028412ad3d3fa8bb4a81a7dc4cd6c04d6a74f159ca61fe137ded0b01894b"
-DASHBOARD = "Hi Test"
-WIDGET = "Ok ok"
+DASHBOARD = "name"
+WIDGET = "name"
 
 while True:
     payload = {
@@ -547,7 +545,7 @@ while True:
 #define API_URL   "https://dtaiotweb.pythonanywhere.com/api/data"
 #define API_KEY   "YOUR_API_KEY"
 #define DASHBOARD "Test Dashboard"
-#define WIDGET    "Temperature"
+#define WIDGET    "name"
 
 int main() {
     CURL *curl;
@@ -598,7 +596,7 @@ int main() {
 const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data";
 const std::string API_KEY   = "YOUR_API_KEY";
 const std::string DASHBOARD = "Test Dashboard";
-const std::string WIDGET    = "Temperature";
+const std::string WIDGET    = "name";
 
 float readSensor() {
     return 26.5f; // Replace with actual sensor reading logic
@@ -652,7 +650,7 @@ int main() {
      -d '{
            "api_key":   "YOUR_API_KEY",
            "dashboard": "Test Dashboard",
-           "widget":    "Temperature",
+           "widget":    "name",
            "value":     26.5
          }'
 
@@ -673,7 +671,7 @@ int main() {
                 </div>
                 <div class="explain-row">
                     <span class="explain-code">feed_name</span>
-                    <span class="explain-text">Name of your data channel (Feed API). You can have multiple feeds e.g. "Temperature", "Humidity" — each stores separately.</span>
+                    <span class="explain-text">Name of your data channel (Feed API). You can have multiple feeds e.g. "name", "Humidity" — each stores separately.</span>
                 </div>
                 <div class="explain-row">
                     <span class="explain-code">dashboard + widget</span>
