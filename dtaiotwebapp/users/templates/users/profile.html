@@ -422,7 +422,7 @@ int main() {
 #include &lt;cstdlib&gt;
 #include &lt;curl/curl.h&gt;
 
-const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/feed_data";
+const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data";
 const std::string API_KEY   = "YOUR_API_KEY";
 const std::string FEED_NAME = "Hi Test";
 
@@ -439,14 +439,16 @@ void sendData(float value) {
         "\",\"value\":"     + std::to_string(value) + "}";
     struct curl_slist *headers = nullptr;
     headers = curl_slist_append(headers, "Content-Type: application/json");
-    curl_easy_setopt(curl, CURLOPT_URL,       API_URL.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, API_URL.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
     CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK)
+    if (res != CURLE_OK) {
         std::cerr &lt;&lt; "Error: " &lt;&lt; curl_easy_strerror(res) &lt;&lt; "\n";
-    else
-        std::cout &lt;&lt; "Sent: " &lt;&lt; value &lt;&lt; "\n";
+    } else {
+        std::cout &lt;&lt; "Data sent successfully!\n";
+    }
+
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
 }
@@ -539,17 +541,51 @@ else:
                     <button class="btn-copy-code" onclick="copyLangCode('lcode-dc',this)">Copy</button>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dc">curl -X POST https://dtaiotweb.pythonanywhere.com/api/data \
-     -H "Content-Type: application/json" \
-     -d '{
-           "api_key":   "YOUR_API_KEY",
-           "dashboard": "Test Dashboard",
-           "widget":    "Temperature",
-           "value":     26.5
-         }'
+<code id="lcode-dc">/* Linux: sudo apt install libcurl4-openssl-dev
+   macOS: brew install curl                        */
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;curl/curl.h&gt;
 
-# Expected response:
-# {"message": "Data saved"}</code>
+#define API_URL   "https://dtaiotweb.pythonanywhere.com/api/data"
+#define API_KEY   "YOUR_API_KEY"
+#define DASHBOARD "Test Dashboard"
+#define WIDGET    "Temperature"
+
+int main() {
+    CURL *curl;
+    CURLcode res;
+
+    char json_body[256];
+    snprintf(json_body, sizeof(json_body),
+        "{\"api_key\":\"%s\",\"dashboard\":\"%s\",\"widget\":\"%s\",\"value\":%.2f}",
+        API_KEY, DASHBOARD, WIDGET, 26.5);
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
+    if (curl) {
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+
+        curl_easy_setopt(curl, CURLOPT_URL, API_URL);
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_body);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        } else {
+            printf("Data sent successfully!\n");
+        }
+
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+    curl_global_cleanup();
+
+    return 0;
+}</code>
                 </div>
             </div> <div class="lang-panel" id="lpanel2-dcpp">
                 <div class="lang-panel-header">
@@ -557,17 +593,55 @@ else:
                     <button class="btn-copy-code" onclick="copyLangCode('lcode-dcpp',this)">Copy</button>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dcpp">curl -X POST https://dtaiotweb.pythonanywhere.com/api/data \
-     -H "Content-Type: application/json" \
-     -d '{
-           "api_key":   "YOUR_API_KEY",
-           "dashboard": "Test Dashboard",
-           "widget":    "Temperature",
-           "value":     26.5
-         }'
+<code id="lcode-dcpp">// Linux: sudo apt install libcurl4-openssl-dev
+// macOS: brew install curl
+#include <iostream>
+#include <string>
+#include <curl/curl.h>
 
-# Expected response:
-# {"message": "Data saved"}</code>
+const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data";
+const std::string API_KEY   = "YOUR_API_KEY";
+const std::string DASHBOARD = "Test Dashboard";
+const std::string WIDGET    = "Temperature";
+
+float readSensor() {
+    return 26.5f; // Replace with actual sensor reading logic
+}
+
+void sendData(float value) {
+    CURL *curl = curl_easy_init();
+    if (!curl) return;
+
+    std::string body =
+        "{\"api_key\":\"" + API_KEY +
+        "\",\"dashboard\":\"" + DASHBOARD +
+        "\",\"widget\":\"" + WIDGET +
+        "\",\"value\":" + std::to_string(value) + "}";
+
+    struct curl_slist *headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+
+    curl_easy_setopt(curl, CURLOPT_URL, API_URL.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << "Error: " << curl_easy_strerror(res) << "\n";
+    } else {
+        std::cout << "Data sent successfully!\n";
+    }
+
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+}
+
+int main() {
+    curl_global_init(CURL_GLOBAL_ALL);
+    sendData(readSensor());
+    curl_global_cleanup();
+    return 0;
+}</code>
                 </div>
             </div>
 
@@ -586,8 +660,7 @@ else:
            "value":     26.5
          }'
 
-# Expected response:
-# {"message": "Data saved"}</code>
+</code>
                 </div>
             </div>
 
@@ -668,7 +741,7 @@ else:
                         <tr><td><span class="badge badge-orange">400</span></td><td>Invalid JSON</td><td>Body is malformed or not JSON</td><td>Validate JSON before sending</td><td><span class="msg-code">"Invalid JSON"</span></td></tr>
                         <tr><td><span class="badge badge-orange">400</span></td><td>Missing fields</td><td><code>api_key</code> or <code>feed_name</code> absent</td><td>Include all required fields</td><td><span class="msg-code">"Missing fields"</span></td></tr>
                         <tr><td><span class="badge badge-red">401</span></td><td>Authentication failed</td><td>Invalid key or feed not found</td><td>Check key and ensure feed exists</td><td><span class="msg-code">"Authentication failed"</span></td></tr>
-                        <tr><td><span class="badge badge-orange">400</span></td><td>Value required</td><td><code>value</code> missing in payload</td><td>Always include numeric <code>value</code></td><td><span class="msg-code">"Value required"</span></td></tr>
+                        <tr><td><span class="badge badge-orange">400</span></td><td>Value required</td><td><code>value</code> missing in payload</td><td>Always include numeric value</td><td><span class="msg-code">"Value required"</span></td></tr>
                         <tr><td><span class="badge badge-orange">400</span></td><td>Value Type Error</td><td><code>value</code> is not a number</td><td>Convert to float before sending</td><td><span class="msg-code">"Value Type Error"</span></td></tr>
                         <tr><td><span class="badge badge-purple">403</span></td><td>Rate limit exceeded</td><td>Too many requests per second</td><td>Increase sleep to 3+ seconds</td><td><span class="msg-code">"Rate limit exceeded"</span></td></tr>
                         <tr><td><span class="badge badge-gray">500</span></td><td>Server Error</td><td>Unhandled server exception</td><td>Retry — server-side issue</td><td><span class="msg-code">"Internal Server Error"</span></td></tr>

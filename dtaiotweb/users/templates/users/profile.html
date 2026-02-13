@@ -1,0 +1,51 @@
+<div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
+<code id="lcode-dcpp">// Linux: sudo apt install libcurl4-openssl-dev
+// macOS: brew install curl
+#include <iostream>
+#include <string>
+#include <curl/curl.h>
+
+const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data";
+const std::string API_KEY   = "YOUR_API_KEY";
+const std::string DASHBOARD = "Test Dashboard";
+const std::string WIDGET    = "Temperature";
+
+float readSensor() {
+    return 26.5f; // Replace with actual sensor reading logic
+}
+
+void sendData(float value) {
+    CURL *curl = curl_easy_init();
+    if (!curl) return;
+
+    std::string body =
+        "{\"api_key\":\"" + API_KEY +
+        "\",\"dashboard\":\"" + DASHBOARD +
+        "\",\"widget\":\"" + WIDGET +
+        "\",\"value\":" + std::to_string(value) + "}";
+
+    struct curl_slist *headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+
+    curl_easy_setopt(curl, CURLOPT_URL, API_URL.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << "Error: " << curl_easy_strerror(res) << "\n";
+    } else {
+        std::cout << "Data sent successfully!\n";
+    }
+
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+}
+
+int main() {
+    curl_global_init(CURL_GLOBAL_ALL);
+    sendData(readSensor());
+    curl_global_cleanup();
+    return 0;
+}</code>
+</div>
