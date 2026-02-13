@@ -333,18 +333,17 @@ while True:
         "feed_name": FEED_NAME,
         "value":     value
     }
-    try:
-        response = requests.post(API_URL, json=payload, timeout=5)
-        if response.status_code == 403:
-            print("Rate limit exceeded — slow down!")
-        elif response.status_code == 401:
-            print("Authentication failed — check your API key")
-        elif response.status_code == 400:
-            print("Bad request:", response.json())
-        else:
-            print("Sent:", value, "| Response:", response.json())
-    except Exception as e:
-        print("Error:", e)
+
+    response = requests.post(API_URL, json=payload, timeout=5)
+    if response.status_code == 403:
+        print("Rate limit exceeded — slow down!")
+    elif response.status_code == 401:
+        print("Authentication failed — check your API key")
+    elif response.status_code == 400:
+        print("Bad request:", response.json())
+    else:
+        print("Sent:", value, "| Response:", response.json())
+
     time.sleep(3)</code>
                 </div>
             </div>
