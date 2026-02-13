@@ -365,7 +365,7 @@ while True:
 
 #define API_URL   "https://dtaiotweb.pythonanywhere.com/api/feed_data"
 #define API_KEY   "YOUR_API_KEY"
-#define FEED_NAME "name"
+#define FEED_NAME "Hi Test"
 #define INTERVAL  3
 
 float read_sensor() {
@@ -424,7 +424,7 @@ int main() {
 
 const std::string API_URL   = "https://dtaiotweb.pythonanywhere.com/api/feed_data";
 const std::string API_KEY   = "YOUR_API_KEY";
-const std::string FEED_NAME = "name";
+const std::string FEED_NAME = "Hi Test";
 
 float readSensor() {
     return 20.0f + (rand() % 2000) / 100.0f;
@@ -507,29 +507,30 @@ done</code>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
 <code id="lcode-dpy">import requests
-import time
 import random
 
-URL = "https://dtaiotweb.pythonanywhere.com/api/feed_data"
+API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data"
+API_KEY   = "YOUR_API_KEY"
 
-API_KEY = "YOUR_API_KEY"
-FEED_NAME = "hii"
+payload = {
+    "api_key":   API_KEY,
+    "dashboard": "Test Dashboard",   # name of your dashboard
+    "widget":    "Temperature",      # name of the widget on that dashboard
+    "value":     round(random.uniform(20, 40), 2)
+}
 
-while True:
-    payload = {
-        "api_key": API_KEY,
-        "feed_name": FEED_NAME,
-        "value": round(random.uniform(20, 40), 2)
-    }
+response = requests.post(API_URL, json=payload, timeout=5)
 
-    try:
-        r = requests.post(URL, json=payload, timeout=5)
-        print("Response:", r.json())
-    except Exception as e:
-        print("Error:", e)
-
-    time.sleep(3)
-</code>
+if response.status_code == 403:
+    print("Rate limit exceeded — slow down!")
+elif response.status_code == 401:
+    print("Authentication failed — check key, dashboard, or widget name")
+elif response.status_code == 404:
+    print("Widget not found — check widget name exists in your dashboard")
+elif response.status_code == 405:
+    print("POST method required")
+else:
+    print(response.json())</code>
                 </div>
             </div>
              <div class="lang-panel" id="lpanel2-dc">
@@ -538,70 +539,17 @@ while True:
                     <button class="btn-copy-code" onclick="copyLangCode('lcode-dc',this)">Copy</button>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dc">/* Linux: sudo apt install libcurl4-openssl-dev
-   macOS: brew install curl */
+<code id="lcode-dc">curl -X POST https://dtaiotweb.pythonanywhere.com/api/data \
+     -H "Content-Type: application/json" \
+     -d '{
+           "api_key":   "YOUR_API_KEY",
+           "dashboard": "Test Dashboard",
+           "widget":    "Temperature",
+           "value":     26.5
+         }'
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-#include <curl/curl.h>
-
-#define API_URL    "https://dtaiotweb.pythonanywhere.com/api/data"
-#define API_KEY    "YOUR_API_KEY"
-#define DASHBOARD  "Hi Test"
-#define WIDGET     "Ok ok"
-#define INTERVAL   2
-
-float read_sensor() {
-    return 30.0f + (rand() % 1000) / 100.0f;  // 30.00 - 40.00
-}
-
-int main() {
-    srand(time(NULL));
-    curl_global_init(CURL_GLOBAL_ALL);
-
-    CURL *curl;
-    CURLcode res;
-
-    while (1) {
-        float value = read_sensor();
-
-        char json_body[256];
-        snprintf(json_body, sizeof(json_body),
-            "{\"api_key\":\"%s\",\"dashboard\":\"%s\",\"widget\":\"%s\",\"value\":%.2f}",
-            API_KEY, DASHBOARD, WIDGET, value);
-
-        curl = curl_easy_init();
-        if (curl) {
-            struct curl_slist *headers = NULL;
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-
-            curl_easy_setopt(curl, CURLOPT_URL, API_URL);
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_body);
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
-
-            res = curl_easy_perform(curl);
-
-            if (res != CURLE_OK)
-                fprintf(stderr, "Error: %s\n", curl_easy_strerror(res));
-            else
-                printf("Dashboard Sent: %.2f\n", value);
-
-            curl_slist_free_all(headers);
-            curl_easy_cleanup(curl);
-        }
-
-        sleep(INTERVAL);
-    }
-
-    curl_global_cleanup();
-    return 0;
-}
-
-
-</code>
+# Expected response:
+# {"message": "Data saved"}</code>
                 </div>
             </div> <div class="lang-panel" id="lpanel2-dcpp">
                 <div class="lang-panel-header">
@@ -609,54 +557,37 @@ int main() {
                     <button class="btn-copy-code" onclick="copyLangCode('lcode-dcpp',this)">Copy</button>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
-<code id="lcode-dcpp">#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <ctime>
-#include <thread>
-#include <chrono>
-#include <curl/curl.h>
+<code id="lcode-dcpp">curl -X POST https://dtaiotweb.pythonanywhere.com/api/data \
+     -H "Content-Type: application/json" \
+     -d '{
+           "api_key":   "YOUR_API_KEY",
+           "dashboard": "Test Dashboard",
+           "widget":    "Temperature",
+           "value":     26.5
+         }'
 
-int main() {
-    CURL *curl;
-    CURLcode res;
+# Expected response:
+# {"message": "Data saved"}</code>
+                </div>
+            </div>
 
-    std::srand(std::time(0));
+            <div class="lang-panel" id="lpanel2-dcurl">
+                <div class="lang-panel-header">
+                    <span>terminal — dashboard widget POST</span>
+                    <button class="btn-copy-code" onclick="copyLangCode('lcode-dcurl',this)">Copy</button>
+                </div>
+                <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
+<code id="lcode-dcurl">curl -X POST https://dtaiotweb.pythonanywhere.com/api/data \
+     -H "Content-Type: application/json" \
+     -d '{
+           "api_key":   "YOUR_API_KEY",
+           "dashboard": "Test Dashboard",
+           "widget":    "Temperature",
+           "value":     26.5
+         }'
 
-    curl = curl_easy_init();
-    if(curl) {
-        while(true) {
-            double value = 30 + (std::rand() % 1000) / 100.0;
-
-            std::string json =
-                "{\"api_key\":\"YOUR_API_KEY\","
-                "\"dashboard\":\"name\","
-                "\"widget\":\"name\","
-                "\"value\":" + std::to_string(value) + "}";
-
-            struct curl_slist *headers = NULL;
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-
-            curl_easy_setopt(curl, CURLOPT_URL, "https://dtaiotweb.pythonanywhere.com/api/data");
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-            res = curl_easy_perform(curl);
-
-            if(res != CURLE_OK)
-                std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
-            else
-                std::cout << "Sent: " << json << std::endl;
-
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-        }
-
-        curl_easy_cleanup(curl);
-    }
-
-    return 0;
-}
-</code>
+# Expected response:
+# {"message": "Data saved"}</code>
                 </div>
             </div>
 
