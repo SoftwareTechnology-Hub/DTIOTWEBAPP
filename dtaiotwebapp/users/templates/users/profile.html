@@ -509,30 +509,27 @@ done</code>
                 </div>
                 <div class="code-block" style="margin:0;border-radius:0 0 8px 8px;">
 <code id="lcode-dpy">import requests
+import time
 import random
 
-API_URL   = "https://dtaiotweb.pythonanywhere.com/api/data"
-API_KEY   = "YOUR_API_KEY"
+URL = "https://dtaiotweb.pythonanywhere.com/api/data"
 
-payload = {
-    "api_key":   API_KEY,
-    "dashboard": "Test Dashboard",   # name of your dashboard
-    "widget":    "Temperature",      # name of the widget on that dashboard
-    "value":     round(random.uniform(20, 40), 2)
-}
+API_KEY = "2fa9028412ad3d3fa8bb4a81a7dc4cd6c04d6a74f159ca61fe137ded0b01894b"
+DASHBOARD = "Hi Test"
+WIDGET = "Ok ok"
 
-response = requests.post(API_URL, json=payload, timeout=5)
+while True:
+    payload = {
+        "api_key": API_KEY,
+        "dashboard": DASHBOARD,
+        "widget": WIDGET,
+        "value": round(random.uniform(30, 40), 2)
+    }
 
-if response.status_code == 403:
-    print("Rate limit exceeded — slow down!")
-elif response.status_code == 401:
-    print("Authentication failed — check key, dashboard, or widget name")
-elif response.status_code == 404:
-    print("Widget not found — check widget name exists in your dashboard")
-elif response.status_code == 405:
-    print("POST method required")
-else:
-    print(response.json())</code>
+    r = requests.post(URL, json=payload)
+    print(r.json())
+
+    time.sleep(2)</code>
                 </div>
             </div>
              <div class="lang-panel" id="lpanel2-dc">
