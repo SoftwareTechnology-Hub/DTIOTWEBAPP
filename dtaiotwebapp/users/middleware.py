@@ -32,9 +32,9 @@ class AppOnlyAccessMiddleware:
             return self.get_response(request)
 
         # Allow if request comes from WebView / Android
-        ua = request.META.get('HTTP_USER_AGENT', '').lower()
-        if "wv" in ua or "android" in ua:
-            return self.get_response(request)
+        # ua = request.META.get('HTTP_USER_AGENT', '').lower()
+        # if "wv" in ua or "android" in ua:
+        #     return self.get_response(request)
         
         #return HttpResponseForbidden("App access only")
 
